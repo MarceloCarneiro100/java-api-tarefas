@@ -1,0 +1,26 @@
+### Teste 1: dados válidos
+POST http://localhost:8080/api/teste-usuario
+Content-Type: application/json
+
+{
+  "email": "ana@example.com",
+  "senha": "minhaSenha123"
+}
+
+### Teste 2: email inválido
+POST http://localhost:8080/api/teste-usuario
+Content-Type: application/json
+
+{
+  "email": "email-inválido",
+  "senha": "minhaSenha123"
+}
+
+### Teste 3: senha curta
+POST http://localhost:8080/api/teste-usuario
+Content-Type: application/json
+
+{
+  "email": "ana@example.com",
+  "senha": "123"
+}
