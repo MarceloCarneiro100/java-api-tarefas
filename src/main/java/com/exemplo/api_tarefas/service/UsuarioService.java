@@ -3,6 +3,7 @@ package com.exemplo.api_tarefas.service;
 import com.exemplo.api_tarefas.dto.UsuarioResponse;
 import com.exemplo.api_tarefas.entity.Usuario;
 import com.exemplo.api_tarefas.exception.EmailJaCadastradoException;
+import com.exemplo.api_tarefas.exception.UsuarioNaoEncontradoException;
 import com.exemplo.api_tarefas.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
 
@@ -43,5 +44,15 @@ public class UsuarioService {
                         usuario.getEmail()
                 ))
                 .toList();
+    }
+
+    public UsuarioResponse buscarUsuarioPorId(Long id) {
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new UsuarioNaoEncontradoException(id));
+
+        return new UsuarioResponse(
+                usuario.getId(),
+                usuario.getEmail()
+        );
     }
 }

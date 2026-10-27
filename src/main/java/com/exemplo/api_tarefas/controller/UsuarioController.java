@@ -14,12 +14,12 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-public class HelloController {
+public class UsuarioController {
 
     private final MensagemService mensagemService;
     private final UsuarioService usuarioService;
 
-    public HelloController(
+    public UsuarioController(
             MensagemService mensagemService,
             UsuarioService usuarioService
     ) {
@@ -69,5 +69,10 @@ public class HelloController {
     @GetMapping("/api/usuarios")
     public List<UsuarioResponse> listarUsuarios() {
         return usuarioService.listarUsuarios();
+    }
+
+    @GetMapping("/api/usuarios/{id}")
+    public UsuarioResponse buscarUsuarioPorId(@PathVariable Long id) {
+        return usuarioService.buscarUsuarioPorId(id);
     }
 }

@@ -77,4 +77,17 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.CONFLICT)
                 .body(erroResponse);
     }
+
+    @ExceptionHandler(UsuarioNaoEncontradoException.class)
+    public ResponseEntity<ErroResponse> tratarUsuarioNaoEncontrado(
+            UsuarioNaoEncontradoException exception
+    ) {
+        ErroResponse erroResponse = new ErroResponse(
+                HttpStatus.NOT_FOUND.value(),
+                "Não encontrado",
+                List.of(exception.getMessage())
+        );
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(erroResponse);
+    }
 }
