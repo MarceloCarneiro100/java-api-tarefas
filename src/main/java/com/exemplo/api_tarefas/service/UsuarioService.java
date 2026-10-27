@@ -7,12 +7,21 @@ import org.springframework.stereotype.Service;
 @Service
 public class UsuarioService {
     private final UsuarioRepository usuarioRepository;
+    private final PasswordService passwordService;
 
-    public UsuarioService(UsuarioRepository usuarioRepository) {
+    public UsuarioService(
+            UsuarioRepository usuarioRepository,
+            PasswordService passwordService) {
+
         this.usuarioRepository = usuarioRepository;
+        this.passwordService = passwordService;
     }
 
     public Usuario salvarUsuario(Usuario usuario) {
+        String senhaCodificada =
+                passwordService.codificarSenha(usuario.getSenha());
+
+        usuario.setSenha(senhaCodificada);
         return usuarioRepository.save(usuario);
     }
 }
