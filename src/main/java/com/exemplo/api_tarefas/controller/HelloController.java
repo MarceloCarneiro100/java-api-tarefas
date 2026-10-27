@@ -40,14 +40,14 @@ public class HelloController {
     ) {
         return new CadastroUsuarioResponse(
                 "Dados recebidos com sucesso",
+                null,
                 request.email()
         );
     }
 
-    // Endpoint provisório para teste (inicialmente sem senha com hash)
-    @PostMapping("/api/teste-persistencia")
+    @PostMapping("/api/usuarios")
     @ResponseStatus(HttpStatus.CREATED)
-    public CadastroUsuarioResponse testarPersistencia(
+    public CadastroUsuarioResponse cadastrarUsuario(
             @Valid @RequestBody CadastroUsuarioRequest request
     ) {
         Usuario usuario = new Usuario();
@@ -57,7 +57,8 @@ public class HelloController {
         Usuario usuarioSalvo = usuarioService.salvarUsuario(usuario);
 
         return new CadastroUsuarioResponse(
-                "Usuário salvo no banco de dados de teste",
+                "Usuário cadastrado com sucesso",
+                usuarioSalvo.getId(),
                 usuarioSalvo.getEmail()
         );
     }
