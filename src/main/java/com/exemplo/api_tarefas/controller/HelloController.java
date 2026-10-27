@@ -3,20 +3,25 @@ package com.exemplo.api_tarefas.controller;
 import com.exemplo.api_tarefas.dto.CadastroUsuarioRequest;
 import com.exemplo.api_tarefas.dto.CadastroUsuarioResponse;
 import com.exemplo.api_tarefas.dto.MensagemResponse;
+import com.exemplo.api_tarefas.entity.Usuario;
 import com.exemplo.api_tarefas.service.MensagemService;
+import com.exemplo.api_tarefas.service.UsuarioService;
 import jakarta.validation.Valid;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class HelloController {
 
     private final MensagemService mensagemService;
+    private final UsuarioService usuarioService;
 
-    public HelloController(MensagemService mensagemService) {
+    public HelloController(
+            MensagemService mensagemService,
+            UsuarioService usuarioService
+    ) {
         this.mensagemService = mensagemService;
+        this.usuarioService = usuarioService;
     }
 
     @GetMapping("/api/hello")
@@ -36,6 +41,24 @@ public class HelloController {
         return new CadastroUsuarioResponse(
                 "Dados recebidos com sucesso",
                 request.email()
+        );
+    }
+
+    // Endpoint provisório para teste (inicialmente sem senha com hash)
+    @PostMapping("/api/teste-persistencia")
+    @ResponseStatus(HttpStatus.CREATED)
+    public CadastroUsuarioResponse testarPersistencia(
+            @Valid @RequestBody CadastroUsuarioRequest request
+    ) {
+        Usuario usuario = new Usuario();
+        usuario.setEmail(request.email());
+        usuario.setSenha(request.senha());
+
+        Usuario usuarioSalvo = usuarioService.salvarUsuario(usuario);
+
+        return new CadastroUsuarioResponse(
+                "Usuário salvo no banco de dados de teste",
+                usuarioSalvo.getEmail()
         );
     }
 }
