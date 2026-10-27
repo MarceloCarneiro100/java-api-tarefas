@@ -1,6 +1,7 @@
 package com.exemplo.api_tarefas.service;
 
 import com.exemplo.api_tarefas.entity.Usuario;
+import com.exemplo.api_tarefas.exception.EmailJaCadastradoException;
 import com.exemplo.api_tarefas.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +19,12 @@ public class UsuarioService {
     }
 
     public Usuario salvarUsuario(Usuario usuario) {
+        boolean emailExiste = usuarioRepository.existsByEmail(usuario.getEmail());
+
+        if (emailExiste) {
+            throw new EmailJaCadastradoException(usuario.getEmail());
+        }
+
         String senhaCodificada =
                 passwordService.codificarSenha(usuario.getSenha());
 

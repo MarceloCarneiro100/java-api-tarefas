@@ -46,4 +46,19 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.NOT_FOUND)
                 .body(erroResponse);
     }
+
+    @ExceptionHandler(EmailJaCadastradoException.class)
+    public ResponseEntity<ErroResponse> tratarEmailJaCadastrado(
+            EmailJaCadastradoException exception
+    ) {
+        ErroResponse erroResponse = new ErroResponse(
+                HttpStatus.CONFLICT.value(),
+                "Conflito",
+                List.of(exception.getMessage())
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(erroResponse);
+    }
 }
