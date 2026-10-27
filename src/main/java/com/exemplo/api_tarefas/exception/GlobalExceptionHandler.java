@@ -1,6 +1,7 @@
 package com.exemplo.api_tarefas.exception;
 
 import com.exemplo.api_tarefas.dto.ErroResponse;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -55,6 +56,21 @@ public class GlobalExceptionHandler {
                 HttpStatus.CONFLICT.value(),
                 "Conflito",
                 List.of(exception.getMessage())
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(erroResponse);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErroResponse> tratarViolacaoIntegridade(
+            DataIntegrityViolationException exception
+    ) {
+        ErroResponse erroResponse = new ErroResponse(
+                HttpStatus.CONFLICT.value(),
+                "Conflito",
+                List.of("Os dados informados violam uma restrição do banco de dados.")
         );
 
         return ResponseEntity
