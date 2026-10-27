@@ -1,9 +1,12 @@
 package com.exemplo.api_tarefas.service;
 
+import com.exemplo.api_tarefas.dto.UsuarioResponse;
 import com.exemplo.api_tarefas.entity.Usuario;
 import com.exemplo.api_tarefas.exception.EmailJaCadastradoException;
 import com.exemplo.api_tarefas.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class UsuarioService {
@@ -30,5 +33,15 @@ public class UsuarioService {
 
         usuario.setSenha(senhaCodificada);
         return usuarioRepository.save(usuario);
+    }
+
+    public List<UsuarioResponse> listarUsuarios() {
+        return usuarioRepository.findAll()
+                .stream()
+                .map(usuario -> new UsuarioResponse(
+                        usuario.getId(),
+                        usuario.getEmail()
+                ))
+                .toList();
     }
 }

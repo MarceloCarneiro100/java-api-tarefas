@@ -3,12 +3,15 @@ package com.exemplo.api_tarefas.controller;
 import com.exemplo.api_tarefas.dto.CadastroUsuarioRequest;
 import com.exemplo.api_tarefas.dto.CadastroUsuarioResponse;
 import com.exemplo.api_tarefas.dto.MensagemResponse;
+import com.exemplo.api_tarefas.dto.UsuarioResponse;
 import com.exemplo.api_tarefas.entity.Usuario;
 import com.exemplo.api_tarefas.service.MensagemService;
 import com.exemplo.api_tarefas.service.UsuarioService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 public class HelloController {
@@ -61,5 +64,10 @@ public class HelloController {
                 usuarioSalvo.getId(),
                 usuarioSalvo.getEmail()
         );
+    }
+
+    @GetMapping("/api/usuarios")
+    public List<UsuarioResponse> listarUsuarios() {
+        return usuarioService.listarUsuarios();
     }
 }
