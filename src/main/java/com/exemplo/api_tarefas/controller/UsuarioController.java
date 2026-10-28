@@ -80,4 +80,10 @@ public class UsuarioController {
     ) {
         return usuarioService.atualizarUsuario(id, request);
     }
+
+    @DeleteMapping("/api/usuarios/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void excluirUsuario(@PathVariable Long id) {
+        usuarioService.excluirUsuario(id);
+    }
 }

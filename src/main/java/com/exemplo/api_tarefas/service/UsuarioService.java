@@ -82,4 +82,11 @@ public class UsuarioService {
                 usuarioAtualizado.getEmail()
         );
     }
+
+    public void excluirUsuario(Long id) {
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new UsuarioNaoEncontradoException(id));
+
+        usuarioRepository.delete(usuario);
+    }
 }
