@@ -1,5 +1,6 @@
 package com.exemplo.api_tarefas.service;
 
+import com.exemplo.api_tarefas.dto.AtualizarUsuarioRequest;
 import com.exemplo.api_tarefas.dto.UsuarioResponse;
 import com.exemplo.api_tarefas.entity.Usuario;
 import com.exemplo.api_tarefas.exception.EmailJaCadastradoException;
@@ -53,6 +54,32 @@ public class UsuarioService {
         return new UsuarioResponse(
                 usuario.getId(),
                 usuario.getEmail()
+        );
+    }
+
+    public UsuarioResponse atualizarUsuario(
+            Long id,
+            AtualizarUsuarioRequest request
+    ) {
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new UsuarioNaoEncontradoException(id));
+
+        boolean emailEmUso = usuarioRepository.existsByEmail(request.email());
+
+        if (emailEmUso && !usuario.getEmail().equals(request.email())) {
+            throw new EmailJaCadastradoException(request.email());
+        }
+
+        usuario.setEmail(request.email());
+
+        String senhaCodificada = passwordService.codificarSenha(request.senha());
+        usuario.setSenha(senhaCodificada);
+
+        Usuario usuarioAtualizado = usuarioRepository.save(usuario);
+
+        return new UsuarioResponse(
+                usuarioAtualizado.getId(),
+                usuarioAtualizado.getEmail()
         );
     }
 }

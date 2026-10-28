@@ -1,9 +1,6 @@
 package com.exemplo.api_tarefas.controller;
 
-import com.exemplo.api_tarefas.dto.CadastroUsuarioRequest;
-import com.exemplo.api_tarefas.dto.CadastroUsuarioResponse;
-import com.exemplo.api_tarefas.dto.MensagemResponse;
-import com.exemplo.api_tarefas.dto.UsuarioResponse;
+import com.exemplo.api_tarefas.dto.*;
 import com.exemplo.api_tarefas.entity.Usuario;
 import com.exemplo.api_tarefas.service.MensagemService;
 import com.exemplo.api_tarefas.service.UsuarioService;
@@ -74,5 +71,13 @@ public class UsuarioController {
     @GetMapping("/api/usuarios/{id}")
     public UsuarioResponse buscarUsuarioPorId(@PathVariable Long id) {
         return usuarioService.buscarUsuarioPorId(id);
+    }
+
+    @PutMapping("/api/usuarios/{id}")
+    public UsuarioResponse atualizarUsuario(
+            @PathVariable Long id,
+            @Valid @RequestBody AtualizarUsuarioRequest request
+    ) {
+        return usuarioService.atualizarUsuario(id, request);
     }
 }
