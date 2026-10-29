@@ -1,5 +1,6 @@
 package com.exemplo.api_tarefas.service;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -28,5 +29,17 @@ public class JwtService {
                 .expiration(new Date(agora.getTime() + 3600000))
                 .signWith(chave)
                 .compact();
+    }
+
+    private Claims extrairClaims(String token) {
+        return Jwts.parser()
+                .verifyWith(chave)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+    }
+
+    public String extrairEmail(String token) {
+        return extrairClaims(token).getSubject();
     }
 }
