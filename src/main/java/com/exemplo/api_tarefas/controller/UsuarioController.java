@@ -2,6 +2,7 @@ package com.exemplo.api_tarefas.controller;
 
 import com.exemplo.api_tarefas.dto.*;
 import com.exemplo.api_tarefas.entity.Usuario;
+import com.exemplo.api_tarefas.service.JwtService;
 import com.exemplo.api_tarefas.service.MensagemService;
 import com.exemplo.api_tarefas.service.UsuarioService;
 import jakarta.validation.Valid;
@@ -15,13 +16,16 @@ public class UsuarioController {
 
     private final MensagemService mensagemService;
     private final UsuarioService usuarioService;
+    private final JwtService jwtService;
 
     public UsuarioController(
             MensagemService mensagemService,
-            UsuarioService usuarioService
+            UsuarioService usuarioService,
+            JwtService jwtService
     ) {
         this.mensagemService = mensagemService;
         this.usuarioService = usuarioService;
+        this.jwtService = jwtService;
     }
 
     @GetMapping("/api/hello")
@@ -88,7 +92,16 @@ public class UsuarioController {
     }
 
     @PostMapping("/api/auth/login")
-    public UsuarioResponse login(@Valid @RequestBody LoginRequest request) {
-        return usuarioService.autenticar(request);
+    public LoginResponse login(@Valid @RequestBody LoginRequest request) {
+        UsuarioResponse usuario = usuarioService.autenticar(request);
+
+        String token = jwtService.gerarToken(usuario.id(), usuario.email());
+
+        return new LoginResponse(
+                "Login realizado com sucesso",
+                token,
+                usuario.id(),
+                usuario.email()
+        );
     }
 }
