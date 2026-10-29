@@ -1,8 +1,10 @@
 package com.exemplo.api_tarefas.service;
 
 import com.exemplo.api_tarefas.dto.AtualizarUsuarioRequest;
+import com.exemplo.api_tarefas.dto.LoginRequest;
 import com.exemplo.api_tarefas.dto.UsuarioResponse;
 import com.exemplo.api_tarefas.entity.Usuario;
+import com.exemplo.api_tarefas.exception.CredenciaisInvalidasException;
 import com.exemplo.api_tarefas.exception.EmailJaCadastradoException;
 import com.exemplo.api_tarefas.exception.UsuarioNaoEncontradoException;
 import com.exemplo.api_tarefas.repository.UsuarioRepository;
@@ -30,25 +32,24 @@ public class UsuarioService {
             throw new EmailJaCadastradoException(usuario.getEmail());
         }
 
-        String senhaCodificada =
-                passwordService.codificarSenha(usuario.getSenha());
+        String senhaCodificada = passwordService.codificarSenha(usuario.getSenha());
 
         usuario.setSenha(senhaCodificada);
         return usuarioRepository.save(usuario);
     }
 
     public List<UsuarioResponse> listarUsuarios() {
-        return usuarioRepository.findAll()
+        return usuarioRepository
+                .findAll()
                 .stream()
                 .map(usuario -> new UsuarioResponse(
-                        usuario.getId(),
-                        usuario.getEmail()
-                ))
+                        usuario.getId(), usuario.getEmail()))
                 .toList();
     }
 
     public UsuarioResponse buscarUsuarioPorId(Long id) {
-        Usuario usuario = usuarioRepository.findById(id)
+        Usuario usuario = usuarioRepository
+                .findById(id)
                 .orElseThrow(() -> new UsuarioNaoEncontradoException(id));
 
         return new UsuarioResponse(
@@ -57,11 +58,9 @@ public class UsuarioService {
         );
     }
 
-    public UsuarioResponse atualizarUsuario(
-            Long id,
-            AtualizarUsuarioRequest request
-    ) {
-        Usuario usuario = usuarioRepository.findById(id)
+    public UsuarioResponse atualizarUsuario(Long id, AtualizarUsuarioRequest request) {
+        Usuario usuario = usuarioRepository
+                .findById(id)
                 .orElseThrow(() -> new UsuarioNaoEncontradoException(id));
 
         boolean emailEmUso = usuarioRepository.existsByEmail(request.email());
@@ -84,9 +83,28 @@ public class UsuarioService {
     }
 
     public void excluirUsuario(Long id) {
-        Usuario usuario = usuarioRepository.findById(id)
+        Usuario usuario = usuarioRepository
+                .findById(id)
                 .orElseThrow(() -> new UsuarioNaoEncontradoException(id));
 
         usuarioRepository.delete(usuario);
+    }
+
+    public UsuarioResponse autenticar(LoginRequest request) {
+        Usuario usuario = usuarioRepository
+                .findByEmail(request.email())
+                .orElseThrow(() -> new CredenciaisInvalidasException());
+
+        boolean senhaCorreta = passwordService
+                .verificarSenha(request.senha(), usuario.getSenha());
+
+        if (!senhaCorreta) {
+            throw new CredenciaisInvalidasException();
+        }
+
+        return new UsuarioResponse(
+                usuario.getId(),
+                usuario.getEmail()
+        );
     }
 }

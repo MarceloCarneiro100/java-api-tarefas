@@ -86,4 +86,9 @@ public class UsuarioController {
     public void excluirUsuario(@PathVariable Long id) {
         usuarioService.excluirUsuario(id);
     }
+
+    @PostMapping("/api/auth/login")
+    public UsuarioResponse login(@Valid @RequestBody LoginRequest request) {
+        return usuarioService.autenticar(request);
+    }
 }

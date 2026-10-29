@@ -90,4 +90,17 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(erroResponse);
     }
+
+    @ExceptionHandler(CredenciaisInvalidasException.class)
+    public ResponseEntity<ErroResponse> tratarCredenciaisInvalidas(
+            CredenciaisInvalidasException exception
+    ) {
+        ErroResponse erroResponse = new ErroResponse(
+                HttpStatus.UNAUTHORIZED.value(),
+                "Não autorizado",
+                List.of(exception.getMessage())
+        );
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(erroResponse);
+    }
 }
