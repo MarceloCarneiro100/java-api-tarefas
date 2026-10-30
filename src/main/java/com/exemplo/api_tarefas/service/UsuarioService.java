@@ -3,6 +3,7 @@ package com.exemplo.api_tarefas.service;
 import com.exemplo.api_tarefas.dto.AtualizarUsuarioRequest;
 import com.exemplo.api_tarefas.dto.LoginRequest;
 import com.exemplo.api_tarefas.dto.UsuarioResponse;
+import com.exemplo.api_tarefas.entity.Perfil;
 import com.exemplo.api_tarefas.entity.Usuario;
 import com.exemplo.api_tarefas.exception.CredenciaisInvalidasException;
 import com.exemplo.api_tarefas.exception.EmailJaCadastradoException;
@@ -35,6 +36,8 @@ public class UsuarioService {
         String senhaCodificada = passwordService.codificarSenha(usuario.getSenha());
 
         usuario.setSenha(senhaCodificada);
+        usuario.setPerfil(Perfil.USER);
+
         return usuarioRepository.save(usuario);
     }
 
