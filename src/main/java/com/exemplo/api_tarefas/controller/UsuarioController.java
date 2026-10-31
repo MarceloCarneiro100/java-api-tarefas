@@ -5,6 +5,7 @@ import com.exemplo.api_tarefas.entity.Usuario;
 import com.exemplo.api_tarefas.service.JwtService;
 import com.exemplo.api_tarefas.service.MensagemService;
 import com.exemplo.api_tarefas.service.UsuarioService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +29,7 @@ public class UsuarioController {
         this.jwtService = jwtService;
     }
 
+    @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/api/hello")
     public MensagemResponse hello() {
         String mensagem = mensagemService.obterMensagem();
@@ -38,6 +40,7 @@ public class UsuarioController {
         );
     }
 
+    @SecurityRequirement(name = "bearerAuth")
     @PostMapping("/api/teste-usuario")
     public CadastroUsuarioResponse testarUsuario(
             @Valid @RequestBody CadastroUsuarioRequest request
@@ -67,16 +70,19 @@ public class UsuarioController {
         );
     }
 
+    @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/api/usuarios")
     public List<UsuarioResponse> listarUsuarios() {
         return usuarioService.listarUsuarios();
     }
 
+    @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/api/usuarios/{id}")
     public UsuarioResponse buscarUsuarioPorId(@PathVariable Long id) {
         return usuarioService.buscarUsuarioPorId(id);
     }
 
+    @SecurityRequirement(name = "bearerAuth")
     @PutMapping("/api/usuarios/{id}")
     public UsuarioResponse atualizarUsuario(
             @PathVariable Long id,
@@ -85,6 +91,7 @@ public class UsuarioController {
         return usuarioService.atualizarUsuario(id, request);
     }
 
+    @SecurityRequirement(name = "bearerAuth")
     @DeleteMapping("/api/usuarios/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void excluirUsuario(@PathVariable Long id) {
@@ -95,13 +102,18 @@ public class UsuarioController {
     public LoginResponse login(@Valid @RequestBody LoginRequest request) {
         UsuarioResponse usuario = usuarioService.autenticar(request);
 
-        String token = jwtService.gerarToken(usuario.id(), usuario.email());
+        String token = jwtService.gerarToken(
+                usuario.id(),
+                usuario.email(),
+                usuario.perfil().name()
+        );
 
         return new LoginResponse(
                 "Login realizado com sucesso",
                 token,
                 usuario.id(),
-                usuario.email()
+                usuario.email(),
+                usuario.perfil().name()
         );
     }
 }

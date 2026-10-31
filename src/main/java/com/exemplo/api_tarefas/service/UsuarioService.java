@@ -46,7 +46,9 @@ public class UsuarioService {
                 .findAll()
                 .stream()
                 .map(usuario -> new UsuarioResponse(
-                        usuario.getId(), usuario.getEmail()))
+                        usuario.getId(),
+                        usuario.getEmail(),
+                        usuario.getPerfil()))
                 .toList();
     }
 
@@ -57,7 +59,8 @@ public class UsuarioService {
 
         return new UsuarioResponse(
                 usuario.getId(),
-                usuario.getEmail()
+                usuario.getEmail(),
+                usuario.getPerfil()
         );
     }
 
@@ -81,7 +84,8 @@ public class UsuarioService {
 
         return new UsuarioResponse(
                 usuarioAtualizado.getId(),
-                usuarioAtualizado.getEmail()
+                usuarioAtualizado.getEmail(),
+                usuarioAtualizado.getPerfil()
         );
     }
 
@@ -107,7 +111,8 @@ public class UsuarioService {
 
         return new UsuarioResponse(
                 usuario.getId(),
-                usuario.getEmail()
+                usuario.getEmail(),
+                usuario.getPerfil()
         );
     }
 }

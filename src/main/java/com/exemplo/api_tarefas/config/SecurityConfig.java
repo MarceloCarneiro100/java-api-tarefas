@@ -41,6 +41,12 @@ public class SecurityConfig {
                         .requestMatchers(
                                 HttpMethod.POST, "/api/usuarios"
                         ).permitAll()
+                        .requestMatchers(
+                                HttpMethod.GET, "/api/hello"
+                        ).hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(
+                                "/api/usuarios/**"
+                        ).hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(
@@ -52,7 +58,11 @@ public class SecurityConfig {
                                 response.sendError(
                                         HttpServletResponse.SC_UNAUTHORIZED,
                                         "Autenticação necessária"
-                                )));
+                                ))
+                        .accessDeniedHandler((request, response, exception) ->
+                                response.setStatus(HttpServletResponse.SC_FORBIDDEN))
+                );
+
 
         return http.build();
     }

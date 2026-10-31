@@ -19,12 +19,13 @@ public class JwtService {
         this.chave = Keys.hmacShaKeyFor(bytes);
     }
 
-    public String gerarToken(Long id, String email) {
+    public String gerarToken(Long id, String email, String perfil) {
         Date agora = new Date();
 
         return Jwts.builder()
                 .subject(email)
                 .claim("id", id)
+                .claim("perfil", perfil)
                 .issuedAt(agora)
                 .expiration(new Date(agora.getTime() + 3600000))
                 .signWith(chave)
@@ -41,5 +42,9 @@ public class JwtService {
 
     public String extrairEmail(String token) {
         return extrairClaims(token).getSubject();
+    }
+
+    public String extrairPerfil(String token) {
+        return extrairClaims(token).get("perfil", String.class);
     }
 }
