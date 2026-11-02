@@ -4,11 +4,13 @@ import com.exemplo.api_tarefas.dto.ErroResponse;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 
 @RestControllerAdvice
@@ -102,5 +104,18 @@ public class GlobalExceptionHandler {
         );
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(erroResponse);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErroResponse> tratarAcessoNegado(
+            AccessDeniedException exception
+    ) {
+        ErroResponse erroResponse = new ErroResponse(
+                HttpStatus.FORBIDDEN.value(),
+                "Acesso negado",
+                List.of(exception.getMessage())
+        );
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(erroResponse);
     }
 }

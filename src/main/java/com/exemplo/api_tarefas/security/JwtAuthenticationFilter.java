@@ -1,5 +1,6 @@
 package com.exemplo.api_tarefas.security;
 
+import com.exemplo.api_tarefas.entity.Perfil;
 import com.exemplo.api_tarefas.service.JwtService;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
@@ -39,11 +40,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             String email = jwtService.extrairEmail(token);
             String perfil = jwtService.extrairPerfil(token);
+            Long id = jwtService.extrairId(token);
 
             var autoridade = new SimpleGrantedAuthority("ROLE_" + perfil);
 
+            UsuarioAutenticado usuarioAutenticado = new UsuarioAutenticado(
+                    id,
+                    email,
+                    Perfil.valueOf(perfil)
+            );
+
             var autenticacao =
-                    new UsernamePasswordAuthenticationToken(email, null, List.of(autoridade));
+                    new UsernamePasswordAuthenticationToken(
+                            usuarioAutenticado,
+                            null,
+                            List.of(autoridade));
 
             SecurityContextHolder.getContext().setAuthentication(autenticacao);
 

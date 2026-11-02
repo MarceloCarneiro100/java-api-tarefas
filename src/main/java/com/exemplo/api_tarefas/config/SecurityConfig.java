@@ -45,6 +45,9 @@ public class SecurityConfig {
                                 HttpMethod.GET, "/api/hello"
                         ).hasAnyRole("USER", "ADMIN")
                         .requestMatchers(
+                                HttpMethod.PUT, "/api/usuarios/**"
+                        ).hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(
                                 "/api/usuarios/**"
                         ).hasRole("ADMIN")
                         .anyRequest().authenticated()
@@ -62,7 +65,6 @@ public class SecurityConfig {
                         .accessDeniedHandler((request, response, exception) ->
                                 response.setStatus(HttpServletResponse.SC_FORBIDDEN))
                 );
-
 
         return http.build();
     }

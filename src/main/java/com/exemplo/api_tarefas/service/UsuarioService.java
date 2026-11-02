@@ -9,8 +9,10 @@ import com.exemplo.api_tarefas.exception.CredenciaisInvalidasException;
 import com.exemplo.api_tarefas.exception.EmailJaCadastradoException;
 import com.exemplo.api_tarefas.exception.UsuarioNaoEncontradoException;
 import com.exemplo.api_tarefas.repository.UsuarioRepository;
+import com.exemplo.api_tarefas.security.UsuarioAutenticado;
 import org.springframework.stereotype.Service;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 
 @Service
@@ -64,7 +66,18 @@ public class UsuarioService {
         );
     }
 
-    public UsuarioResponse atualizarUsuario(Long id, AtualizarUsuarioRequest request) {
+    public UsuarioResponse atualizarUsuario(
+            Long id,
+            AtualizarUsuarioRequest request,
+            UsuarioAutenticado usuarioAutenticado) throws AccessDeniedException {
+
+        if (usuarioAutenticado.perfil() != Perfil.ADMIN
+                && !usuarioAutenticado.id().equals(id)) {
+            throw new AccessDeniedException(
+                    "Você não tem permissão para atualizar esse usuário"
+            );
+        }
+
         Usuario usuario = usuarioRepository
                 .findById(id)
                 .orElseThrow(() -> new UsuarioNaoEncontradoException(id));

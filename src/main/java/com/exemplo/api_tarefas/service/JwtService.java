@@ -47,4 +47,8 @@ public class JwtService {
     public String extrairPerfil(String token) {
         return extrairClaims(token).get("perfil", String.class);
     }
+
+    public Long extrairId(String token) {
+        return extrairClaims(token).get("id", Long.class);
+    }
 }

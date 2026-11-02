@@ -2,14 +2,17 @@ package com.exemplo.api_tarefas.controller;
 
 import com.exemplo.api_tarefas.dto.*;
 import com.exemplo.api_tarefas.entity.Usuario;
+import com.exemplo.api_tarefas.security.UsuarioAutenticado;
 import com.exemplo.api_tarefas.service.JwtService;
 import com.exemplo.api_tarefas.service.MensagemService;
 import com.exemplo.api_tarefas.service.UsuarioService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 
 @RestController
@@ -86,9 +89,11 @@ public class UsuarioController {
     @PutMapping("/api/usuarios/{id}")
     public UsuarioResponse atualizarUsuario(
             @PathVariable Long id,
-            @Valid @RequestBody AtualizarUsuarioRequest request
-    ) {
-        return usuarioService.atualizarUsuario(id, request);
+            @Valid @RequestBody AtualizarUsuarioRequest request,
+            @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado
+            ) throws AccessDeniedException {
+
+        return usuarioService.atualizarUsuario(id, request, usuarioAutenticado);
     }
 
     @SecurityRequirement(name = "bearerAuth")
