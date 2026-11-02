@@ -1,5 +1,6 @@
 package com.exemplo.api_tarefas.service;
 
+import com.exemplo.api_tarefas.dto.AtualizarPerfilRequest;
 import com.exemplo.api_tarefas.dto.AtualizarUsuarioRequest;
 import com.exemplo.api_tarefas.dto.LoginRequest;
 import com.exemplo.api_tarefas.dto.UsuarioResponse;
@@ -126,6 +127,32 @@ public class UsuarioService {
                 usuario.getId(),
                 usuario.getEmail(),
                 usuario.getPerfil()
+        );
+    }
+
+    public UsuarioResponse atualizarPerfil(
+            Long id,
+            AtualizarPerfilRequest request,
+            UsuarioAutenticado usuarioAutenticado
+    ) throws AccessDeniedException {
+
+        if (usuarioAutenticado.id().equals(id)) {
+            throw new AccessDeniedException(
+                    "Você não pode alterar o próprio perfil"
+            );
+        }
+
+        Usuario usuario = usuarioRepository
+                .findById(id)
+                .orElseThrow(() -> new UsuarioNaoEncontradoException(id));
+
+        usuario.setPerfil(request.perfil());
+        Usuario usuarioAtualizado = usuarioRepository.save(usuario);
+
+        return new UsuarioResponse(
+                usuarioAtualizado.getId(),
+                usuarioAtualizado.getEmail(),
+                usuarioAtualizado.getPerfil()
         );
     }
 }

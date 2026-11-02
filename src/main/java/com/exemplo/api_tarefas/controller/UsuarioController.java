@@ -91,7 +91,7 @@ public class UsuarioController {
             @PathVariable Long id,
             @Valid @RequestBody AtualizarUsuarioRequest request,
             @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado
-            ) throws AccessDeniedException {
+    ) throws AccessDeniedException {
 
         return usuarioService.atualizarUsuario(id, request, usuarioAutenticado);
     }
@@ -119,6 +119,21 @@ public class UsuarioController {
                 usuario.id(),
                 usuario.email(),
                 usuario.perfil().name()
+        );
+    }
+
+    @SecurityRequirement(name = "bearerAuth")
+    @PatchMapping("/api/usuarios/{id}/perfil")
+    public UsuarioResponse atualizarPerfil(
+            @PathVariable Long id,
+            @Valid @RequestBody AtualizarPerfilRequest request,
+            @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado
+    ) throws AccessDeniedException {
+
+        return usuarioService.atualizarPerfil(
+                id,
+                request,
+                usuarioAutenticado
         );
     }
 }
