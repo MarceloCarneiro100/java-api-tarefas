@@ -1,0 +1,28 @@
+package com.exemplo.api_tarefas.controller;
+
+import com.exemplo.api_tarefas.dto.CadastroTarefaRequest;
+import com.exemplo.api_tarefas.dto.TarefaResponse;
+import com.exemplo.api_tarefas.service.TarefaService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/tarefas")
+public class TarefaController {
+    private final TarefaService tarefaService;
+
+    public TarefaController(TarefaService tarefaService) {
+        this.tarefaService = tarefaService;
+    }
+
+    @PostMapping
+    @SecurityRequirement(name = "bearerAuth")
+    @ResponseStatus(HttpStatus.CREATED)
+    public TarefaResponse criar(
+            @Valid @RequestBody CadastroTarefaRequest request) {
+
+        return tarefaService.criarTarefa(request);
+    }
+}
