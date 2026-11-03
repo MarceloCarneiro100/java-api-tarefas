@@ -51,7 +51,9 @@ public class UsuarioService {
                 .map(usuario -> new UsuarioResponse(
                         usuario.getId(),
                         usuario.getEmail(),
-                        usuario.getPerfil()))
+                        usuario.getPerfil(),
+                        usuario.getCriadoEm(),
+                        usuario.getAtualizadoEm()))
                 .toList();
     }
 
@@ -63,7 +65,9 @@ public class UsuarioService {
         return new UsuarioResponse(
                 usuario.getId(),
                 usuario.getEmail(),
-                usuario.getPerfil()
+                usuario.getPerfil(),
+                usuario.getCriadoEm(),
+                usuario.getAtualizadoEm()
         );
     }
 
@@ -99,7 +103,9 @@ public class UsuarioService {
         return new UsuarioResponse(
                 usuarioAtualizado.getId(),
                 usuarioAtualizado.getEmail(),
-                usuarioAtualizado.getPerfil()
+                usuarioAtualizado.getPerfil(),
+                usuarioAtualizado.getCriadoEm(),
+                usuarioAtualizado.getAtualizadoEm()
         );
     }
 
@@ -126,7 +132,9 @@ public class UsuarioService {
         return new UsuarioResponse(
                 usuario.getId(),
                 usuario.getEmail(),
-                usuario.getPerfil()
+                usuario.getPerfil(),
+                usuario.getCriadoEm(),
+                usuario.getAtualizadoEm()
         );
     }
 
@@ -152,7 +160,9 @@ public class UsuarioService {
         return new UsuarioResponse(
                 usuarioAtualizado.getId(),
                 usuarioAtualizado.getEmail(),
-                usuarioAtualizado.getPerfil()
+                usuarioAtualizado.getPerfil(),
+                usuarioAtualizado.getCriadoEm(),
+                usuarioAtualizado.getAtualizadoEm()
         );
     }
 }

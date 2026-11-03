@@ -3,7 +3,7 @@ package com.exemplo.api_tarefas.entity;
 import jakarta.persistence.*;
 
 @Entity
-public class Usuario {
+public class Usuario extends EntidadeAuditavel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
