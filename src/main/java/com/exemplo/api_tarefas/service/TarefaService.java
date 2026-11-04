@@ -11,6 +11,8 @@ import com.exemplo.api_tarefas.security.UsuarioAutenticado;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class TarefaService {
     private final TarefaRepository tarefaRepository;
@@ -48,6 +50,24 @@ public class TarefaService {
                 tarefaSalva.getCriadoEm(),
                 tarefaSalva.getAtualizadoEm()
         );
+    }
+
+    public List<TarefaResponse> listarTarefas() {
+        Usuario usuario = buscarUsuarioAutenticado();
+
+        return tarefaRepository.findAllByUsuarioId(usuario.getId())
+                .stream()
+                .map(tarefa -> new TarefaResponse(
+                        tarefa.getId(),
+                        tarefa.getTitulo(),
+                        tarefa.getDescricao(),
+                        tarefa.getCategoria(),
+                        tarefa.getStatus(),
+                        tarefa.getUsuario().getId(),
+                        tarefa.getCriadoEm(),
+                        tarefa.getAtualizadoEm()
+                ))
+                .toList();
     }
 
     private UsuarioAutenticado obterUsuarioAutenticado() {

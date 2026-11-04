@@ -8,6 +8,8 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/tarefas")
 public class TarefaController {
@@ -24,5 +26,11 @@ public class TarefaController {
             @Valid @RequestBody CadastroTarefaRequest request) {
 
         return tarefaService.criarTarefa(request);
+    }
+
+    @GetMapping
+    @SecurityRequirement(name = "bearerAuth")
+    public List<TarefaResponse> listar() {
+        return tarefaService.listarTarefas();
     }
 }
