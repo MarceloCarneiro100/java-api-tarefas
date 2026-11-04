@@ -33,4 +33,11 @@ public class TarefaController {
     public List<TarefaResponse> listar() {
         return tarefaService.listarTarefas();
     }
+
+    @GetMapping("/{id}")
+    @SecurityRequirement(name = "bearerAuth")
+    @ResponseStatus(HttpStatus.OK)
+    public TarefaResponse buscarPorId(@PathVariable Long id) {
+        return tarefaService.buscarTarefaPorId(id);
+    }
 }

@@ -4,6 +4,7 @@ import com.exemplo.api_tarefas.dto.CadastroTarefaRequest;
 import com.exemplo.api_tarefas.dto.TarefaResponse;
 import com.exemplo.api_tarefas.entity.Tarefa;
 import com.exemplo.api_tarefas.entity.Usuario;
+import com.exemplo.api_tarefas.exception.TarefaNaoEncontradaException;
 import com.exemplo.api_tarefas.exception.UsuarioNaoEncontradoException;
 import com.exemplo.api_tarefas.repository.TarefaRepository;
 import com.exemplo.api_tarefas.repository.UsuarioRepository;
@@ -55,7 +56,7 @@ public class TarefaService {
     public List<TarefaResponse> listarTarefas() {
         Usuario usuario = buscarUsuarioAutenticado();
 
-        return tarefaRepository.findAllByUsuarioId(usuario.getId())
+        return tarefaRepository.findAllByUsuario_Id(usuario.getId())
                 .stream()
                 .map(tarefa -> new TarefaResponse(
                         tarefa.getId(),
@@ -68,6 +69,24 @@ public class TarefaService {
                         tarefa.getAtualizadoEm()
                 ))
                 .toList();
+    }
+
+    public TarefaResponse buscarTarefaPorId(Long id) {
+        Usuario usuario = buscarUsuarioAutenticado();
+
+        Tarefa tarefa = tarefaRepository.findByIdAndUsuario_Id(id, usuario.getId())
+                .orElseThrow(() -> new TarefaNaoEncontradaException(id));
+
+        return new TarefaResponse(
+                tarefa.getId(),
+                tarefa.getTitulo(),
+                tarefa.getDescricao(),
+                tarefa.getCategoria(),
+                tarefa.getStatus(),
+                tarefa.getUsuario().getId(),
+                tarefa.getCriadoEm(),
+                tarefa.getAtualizadoEm()
+        );
     }
 
     private UsuarioAutenticado obterUsuarioAutenticado() {

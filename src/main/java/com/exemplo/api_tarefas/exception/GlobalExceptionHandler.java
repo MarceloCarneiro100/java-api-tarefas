@@ -118,4 +118,17 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(erroResponse);
     }
+
+    @ExceptionHandler(TarefaNaoEncontradaException.class)
+    public ResponseEntity<ErroResponse> tratarTarefaNaoEncontrada(
+            TarefaNaoEncontradaException exception
+    ) {
+        ErroResponse erroResponse = new ErroResponse(
+                HttpStatus.NOT_FOUND.value(),
+                "Não encontrado",
+                List.of(exception.getMessage())
+        );
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(erroResponse);
+    }
 }

@@ -7,6 +7,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TarefaRepository extends JpaRepository<Tarefa, Long> {
-    Optional<Tarefa> findByIdAndUsuario(Long id, Long usuarioId);
-    List<Tarefa> findAllByUsuarioId(Long usuarioId);
+    Optional<Tarefa> findByIdAndUsuario_Id(Long id, Long usuarioId);
+    List<Tarefa> findAllByUsuario_Id(Long usuarioId);
 }
