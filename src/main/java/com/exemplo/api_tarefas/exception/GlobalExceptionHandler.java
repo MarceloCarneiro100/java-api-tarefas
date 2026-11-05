@@ -8,6 +8,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.nio.file.AccessDeniedException;
@@ -130,5 +131,18 @@ public class GlobalExceptionHandler {
         );
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(erroResponse);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErroResponse> tratarErroTipoParametro(
+            MethodArgumentTypeMismatchException exception
+    ) {
+        ErroResponse erroResponse = new ErroResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                "Parâmetro inválido",
+                List.of("O ID informado deve ser um número válido.")
+        );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erroResponse);
     }
 }
