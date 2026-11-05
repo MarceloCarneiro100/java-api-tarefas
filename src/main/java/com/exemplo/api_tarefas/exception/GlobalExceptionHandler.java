@@ -145,4 +145,17 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erroResponse);
     }
+
+    @ExceptionHandler(AutoExclusaoAdministradorException.class)
+    public ResponseEntity<ErroResponse> tratarAutoExclusaoAdministrador(
+            AutoExclusaoAdministradorException exception
+    ) {
+        ErroResponse erroResponse = new ErroResponse(
+             HttpStatus.FORBIDDEN.value(),
+                "Acesso negado",
+                List.of(exception.getMessage())
+        );
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(erroResponse);
+    }
 }

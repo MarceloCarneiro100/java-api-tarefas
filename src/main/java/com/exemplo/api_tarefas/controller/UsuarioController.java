@@ -99,8 +99,11 @@ public class UsuarioController {
     @SecurityRequirement(name = "bearerAuth")
     @DeleteMapping("/api/usuarios/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void excluirUsuario(@PathVariable Long id) {
-        usuarioService.excluirUsuario(id);
+    public void excluirUsuario(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado) {
+
+        usuarioService.excluirUsuario(id, usuarioAutenticado);
     }
 
     @PostMapping("/api/auth/login")

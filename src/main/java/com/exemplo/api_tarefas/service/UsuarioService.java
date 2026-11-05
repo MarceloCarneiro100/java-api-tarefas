@@ -6,6 +6,7 @@ import com.exemplo.api_tarefas.dto.LoginRequest;
 import com.exemplo.api_tarefas.dto.UsuarioResponse;
 import com.exemplo.api_tarefas.entity.Perfil;
 import com.exemplo.api_tarefas.entity.Usuario;
+import com.exemplo.api_tarefas.exception.AutoExclusaoAdministradorException;
 import com.exemplo.api_tarefas.exception.CredenciaisInvalidasException;
 import com.exemplo.api_tarefas.exception.EmailJaCadastradoException;
 import com.exemplo.api_tarefas.exception.UsuarioNaoEncontradoException;
@@ -109,7 +110,16 @@ public class UsuarioService {
         );
     }
 
-    public void excluirUsuario(Long id) {
+    public void excluirUsuario(
+            Long id,
+            UsuarioAutenticado usuarioAutenticado) {
+
+        if (usuarioAutenticado.perfil() == Perfil.ADMIN
+                && usuarioAutenticado.id().equals(id)
+        ) {
+            throw new AutoExclusaoAdministradorException();
+        }
+
         Usuario usuario = usuarioRepository
                 .findById(id)
                 .orElseThrow(() -> new UsuarioNaoEncontradoException(id));
