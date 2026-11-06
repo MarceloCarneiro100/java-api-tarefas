@@ -51,4 +51,11 @@ public class TarefaController {
     ) {
         return tarefaService.atualizarTarefa(id, request);
     }
+
+    @DeleteMapping("/{id}")
+    @SecurityRequirement(name = "bearerAuth")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void excluir(@PathVariable Long id) {
+        tarefaService.excluirTarefa(id);
+    }
 }

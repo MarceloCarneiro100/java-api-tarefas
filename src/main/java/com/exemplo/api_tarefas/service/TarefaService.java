@@ -122,6 +122,15 @@ public class TarefaService {
         );
     }
 
+    public void excluirTarefa(Long id) {
+        Usuario usuario = buscarUsuarioAutenticado();
+
+        Tarefa tarefa = tarefaRepository.findByIdAndUsuario_Id(id, usuario.getId())
+                .orElseThrow(() -> new TarefaNaoEncontradaException(id));
+
+        tarefaRepository.delete(tarefa);
+    }
+
     private UsuarioAutenticado obterUsuarioAutenticado() {
         var autenticacao = SecurityContextHolder.getContext().getAuthentication();
 
