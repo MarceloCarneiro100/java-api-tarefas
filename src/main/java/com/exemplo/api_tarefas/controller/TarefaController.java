@@ -2,6 +2,7 @@ package com.exemplo.api_tarefas.controller;
 
 import com.exemplo.api_tarefas.dto.CadastroTarefaRequest;
 import com.exemplo.api_tarefas.dto.TarefaResponse;
+import com.exemplo.api_tarefas.dto.AtualizarTarefaRequest;
 import com.exemplo.api_tarefas.service.TarefaService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
@@ -39,5 +40,15 @@ public class TarefaController {
     @ResponseStatus(HttpStatus.OK)
     public TarefaResponse buscarPorId(@PathVariable Long id) {
         return tarefaService.buscarTarefaPorId(id);
+    }
+
+    @PutMapping("/{id}")
+    @SecurityRequirement(name = "bearerAuth")
+    @ResponseStatus(HttpStatus.OK)
+    public TarefaResponse atualizar(
+            @PathVariable Long id,
+            @Valid @RequestBody AtualizarTarefaRequest request
+    ) {
+        return tarefaService.atualizarTarefa(id, request);
     }
 }

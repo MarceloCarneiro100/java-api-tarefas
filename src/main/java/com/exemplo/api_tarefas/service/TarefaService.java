@@ -1,7 +1,9 @@
 package com.exemplo.api_tarefas.service;
 
+import com.exemplo.api_tarefas.dto.AtualizarTarefaRequest;
 import com.exemplo.api_tarefas.dto.CadastroTarefaRequest;
 import com.exemplo.api_tarefas.dto.TarefaResponse;
+import com.exemplo.api_tarefas.entity.Categoria;
 import com.exemplo.api_tarefas.entity.Tarefa;
 import com.exemplo.api_tarefas.entity.Usuario;
 import com.exemplo.api_tarefas.exception.TarefaNaoEncontradaException;
@@ -86,6 +88,37 @@ public class TarefaService {
                 tarefa.getUsuario().getId(),
                 tarefa.getCriadoEm(),
                 tarefa.getAtualizadoEm()
+        );
+    }
+
+    public TarefaResponse atualizarTarefa(Long id, AtualizarTarefaRequest request) {
+        Usuario usuario = buscarUsuarioAutenticado();
+
+        Tarefa tarefa = tarefaRepository.findByIdAndUsuario_Id(id, usuario.getId())
+                .orElseThrow(() -> new TarefaNaoEncontradaException(id));
+
+        tarefa.setTitulo(request.titulo());
+        tarefa.setDescricao(request.descricao());
+
+        if (request.categoria() != null) {
+            tarefa.setCategoria(request.categoria());
+        } else {
+            tarefa.setCategoria(Categoria.TRABALHO);
+        }
+
+        tarefa.setStatus(request.status());
+
+        Tarefa tarefaAtualizada = tarefaRepository.save(tarefa);
+
+        return new TarefaResponse(
+                tarefaAtualizada.getId(),
+                tarefaAtualizada.getTitulo(),
+                tarefaAtualizada.getDescricao(),
+                tarefaAtualizada.getCategoria(),
+                tarefaAtualizada.getStatus(),
+                tarefaAtualizada.getUsuario().getId(),
+                tarefaAtualizada.getCriadoEm(),
+                tarefaAtualizada.getAtualizadoEm()
         );
     }
 
