@@ -8,6 +8,7 @@ import com.exemplo.api_tarefas.entity.Tarefa;
 import com.exemplo.api_tarefas.entity.Usuario;
 import com.exemplo.api_tarefas.exception.TarefaNaoEncontradaException;
 import com.exemplo.api_tarefas.exception.UsuarioNaoEncontradoException;
+import com.exemplo.api_tarefas.mapper.TarefaMapper;
 import com.exemplo.api_tarefas.repository.TarefaRepository;
 import com.exemplo.api_tarefas.repository.UsuarioRepository;
 import com.exemplo.api_tarefas.security.UsuarioAutenticado;
@@ -20,13 +21,16 @@ import java.util.List;
 public class TarefaService {
     private final TarefaRepository tarefaRepository;
     private final UsuarioRepository usuarioRepository;
+    private final TarefaMapper tarefaMapper;
 
     public TarefaService(
             TarefaRepository tarefaRepository,
-            UsuarioRepository usuarioRepository
+            UsuarioRepository usuarioRepository,
+            TarefaMapper tarefaMapper
     ) {
         this.tarefaRepository = tarefaRepository;
         this.usuarioRepository = usuarioRepository;
+        this.tarefaMapper = tarefaMapper;
     }
 
     public TarefaResponse criarTarefa(CadastroTarefaRequest request) {
@@ -43,16 +47,7 @@ public class TarefaService {
 
         Tarefa tarefaSalva = tarefaRepository.save(tarefa);
 
-        return new TarefaResponse(
-                tarefaSalva.getId(),
-                tarefaSalva.getTitulo(),
-                tarefaSalva.getDescricao(),
-                tarefaSalva.getCategoria(),
-                tarefaSalva.getStatus(),
-                tarefaSalva.getUsuario().getId(),
-                tarefaSalva.getCriadoEm(),
-                tarefaSalva.getAtualizadoEm()
-        );
+        return tarefaMapper.toResponse(tarefaSalva);
     }
 
     public List<TarefaResponse> listarTarefas() {
@@ -60,16 +55,7 @@ public class TarefaService {
 
         return tarefaRepository.findAllByUsuario_Id(usuario.getId())
                 .stream()
-                .map(tarefa -> new TarefaResponse(
-                        tarefa.getId(),
-                        tarefa.getTitulo(),
-                        tarefa.getDescricao(),
-                        tarefa.getCategoria(),
-                        tarefa.getStatus(),
-                        tarefa.getUsuario().getId(),
-                        tarefa.getCriadoEm(),
-                        tarefa.getAtualizadoEm()
-                ))
+                .map(tarefaMapper::toResponse)
                 .toList();
     }
 
@@ -79,16 +65,7 @@ public class TarefaService {
         Tarefa tarefa = tarefaRepository.findByIdAndUsuario_Id(id, usuario.getId())
                 .orElseThrow(() -> new TarefaNaoEncontradaException(id));
 
-        return new TarefaResponse(
-                tarefa.getId(),
-                tarefa.getTitulo(),
-                tarefa.getDescricao(),
-                tarefa.getCategoria(),
-                tarefa.getStatus(),
-                tarefa.getUsuario().getId(),
-                tarefa.getCriadoEm(),
-                tarefa.getAtualizadoEm()
-        );
+        return tarefaMapper.toResponse(tarefa);
     }
 
     public TarefaResponse atualizarTarefa(Long id, AtualizarTarefaRequest request) {
@@ -110,16 +87,7 @@ public class TarefaService {
 
         Tarefa tarefaAtualizada = tarefaRepository.save(tarefa);
 
-        return new TarefaResponse(
-                tarefaAtualizada.getId(),
-                tarefaAtualizada.getTitulo(),
-                tarefaAtualizada.getDescricao(),
-                tarefaAtualizada.getCategoria(),
-                tarefaAtualizada.getStatus(),
-                tarefaAtualizada.getUsuario().getId(),
-                tarefaAtualizada.getCriadoEm(),
-                tarefaAtualizada.getAtualizadoEm()
-        );
+        return tarefaMapper.toResponse(tarefaAtualizada);
     }
 
     public void excluirTarefa(Long id) {
