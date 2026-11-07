@@ -4,6 +4,7 @@ import com.exemplo.api_tarefas.dto.AtualizarTarefaRequest;
 import com.exemplo.api_tarefas.dto.CadastroTarefaRequest;
 import com.exemplo.api_tarefas.dto.TarefaResponse;
 import com.exemplo.api_tarefas.entity.Categoria;
+import com.exemplo.api_tarefas.entity.StatusTarefa;
 import com.exemplo.api_tarefas.entity.Tarefa;
 import com.exemplo.api_tarefas.entity.Usuario;
 import com.exemplo.api_tarefas.exception.TarefaNaoEncontradaException;
@@ -52,11 +53,20 @@ public class TarefaService {
         return tarefaMapper.toResponse(tarefaSalva);
     }
 
-    public Page<TarefaResponse> listarTarefas(Pageable pageable) {
+    public Page<TarefaResponse> listarTarefas(
+            Categoria categoria,
+            StatusTarefa status,
+            Pageable pageable
+    ) {
         Usuario usuario = buscarUsuarioAutenticado();
 
         return tarefaRepository
-                .findAllByUsuario_Id(usuario.getId(), pageable)
+                .buscarComFiltros(
+                        usuario.getId(),
+                        categoria,
+                        status,
+                        pageable
+                )
                 .map(tarefaMapper::toResponse);
     }
 

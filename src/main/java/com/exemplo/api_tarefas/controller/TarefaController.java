@@ -3,6 +3,8 @@ package com.exemplo.api_tarefas.controller;
 import com.exemplo.api_tarefas.dto.CadastroTarefaRequest;
 import com.exemplo.api_tarefas.dto.TarefaResponse;
 import com.exemplo.api_tarefas.dto.AtualizarTarefaRequest;
+import com.exemplo.api_tarefas.entity.Categoria;
+import com.exemplo.api_tarefas.entity.StatusTarefa;
 import com.exemplo.api_tarefas.service.TarefaService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
@@ -36,13 +38,15 @@ public class TarefaController {
     @GetMapping
     @SecurityRequirement(name = "bearerAuth")
     public Page<TarefaResponse> listar(
+            @RequestParam(required = false) Categoria categoria,
+            @RequestParam(required = false) StatusTarefa status,
             @PageableDefault(
                     size = 10,
                     sort = "criadoEm",
                     direction = Sort.Direction.DESC
             ) Pageable pageable
     ) {
-        return tarefaService.listarTarefas(pageable);
+        return tarefaService.listarTarefas(categoria, status, pageable);
     }
 
     @GetMapping("/{id}")
