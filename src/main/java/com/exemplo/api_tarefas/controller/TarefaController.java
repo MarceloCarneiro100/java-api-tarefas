@@ -40,6 +40,7 @@ public class TarefaController {
     @GetMapping
     @SecurityRequirement(name = "bearerAuth")
     public Page<TarefaResponse> listar(
+            @RequestParam(required = false) String titulo,
             @RequestParam(required = false) Categoria categoria,
             @RequestParam(required = false) StatusTarefa status,
             @RequestParam(required = false)
@@ -53,6 +54,7 @@ public class TarefaController {
             ) Pageable pageable
     ) {
         return tarefaService.listarTarefas(
+                titulo,
                 categoria,
                 status,
                 dataInicio,

@@ -14,11 +14,13 @@ import java.util.Optional;
 
 public interface TarefaRepository extends JpaRepository<Tarefa, Long> {
     Optional<Tarefa> findByIdAndUsuario_Id(Long id, Long usuarioId);
+
     boolean existsByUsuario_Id(Long usuarioId);
 
     @Query("""
             SELECT t FROM Tarefa t
             WHERE t.usuario.id = :usuarioId
+            AND (:titulo IS NULL OR LOWER(t.titulo) LIKE LOWER(CONCAT('%', :titulo, '%')))
             AND (:categoria is NULL OR t.categoria = :categoria)
             AND (:status IS NULL OR t.status = :status)
             AND (:dataInicio IS NULL OR t.criadoEm >= :dataInicio)
@@ -26,6 +28,7 @@ public interface TarefaRepository extends JpaRepository<Tarefa, Long> {
             """)
     Page<Tarefa> buscarComFiltros(
             @Param("usuarioId") Long usuarioId,
+            @Param("titulo") String titulo,
             @Param("categoria") Categoria categoria,
             @Param("status") StatusTarefa status,
             @Param("dataInicio") LocalDateTime dataInicio,

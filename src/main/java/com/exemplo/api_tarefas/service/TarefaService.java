@@ -56,6 +56,7 @@ public class TarefaService {
     }
 
     public Page<TarefaResponse> listarTarefas(
+            String titulo,
             Categoria categoria,
             StatusTarefa status,
             LocalDate dataInicio,
@@ -80,9 +81,18 @@ public class TarefaService {
                 ? dataFim.plusDays(1).atStartOfDay()
                 : null;
 
+        if (titulo != null) {
+            titulo = titulo.trim();
+
+            if (titulo.isBlank()) {
+                titulo = null;
+            }
+        }
+
         return tarefaRepository
                 .buscarComFiltros(
                         usuario.getId(),
+                        titulo,
                         categoria,
                         status,
                         inicio,
