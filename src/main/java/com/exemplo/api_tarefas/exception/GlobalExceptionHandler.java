@@ -151,11 +151,24 @@ public class GlobalExceptionHandler {
             AutoExclusaoAdministradorException exception
     ) {
         ErroResponse erroResponse = new ErroResponse(
-             HttpStatus.FORBIDDEN.value(),
+                HttpStatus.FORBIDDEN.value(),
                 "Acesso negado",
                 List.of(exception.getMessage())
         );
 
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(erroResponse);
+    }
+
+    @ExceptionHandler(IntervaloDatasInvalidoException.class)
+    public ResponseEntity<ErroResponse> tratarIntervaloDatasInvalido(
+            IntervaloDatasInvalidoException exception
+    ) {
+        ErroResponse erroResponse = new ErroResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                "Intervalo de datas inválido",
+                List.of(exception.getMessage())
+        );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erroResponse);
     }
 }

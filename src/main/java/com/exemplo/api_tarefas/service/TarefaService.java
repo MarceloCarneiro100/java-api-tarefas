@@ -7,6 +7,7 @@ import com.exemplo.api_tarefas.entity.Categoria;
 import com.exemplo.api_tarefas.entity.StatusTarefa;
 import com.exemplo.api_tarefas.entity.Tarefa;
 import com.exemplo.api_tarefas.entity.Usuario;
+import com.exemplo.api_tarefas.exception.IntervaloDatasInvalidoException;
 import com.exemplo.api_tarefas.exception.TarefaNaoEncontradaException;
 import com.exemplo.api_tarefas.exception.UsuarioNaoEncontradoException;
 import com.exemplo.api_tarefas.mapper.TarefaMapper;
@@ -61,6 +62,14 @@ public class TarefaService {
             LocalDate dataFim,
             Pageable pageable
     ) {
+
+        if (dataInicio != null && dataFim != null
+                && dataInicio.isAfter(dataFim)) {
+            throw new IntervaloDatasInvalidoException(
+                    "A data inicial não pode ser posterior à data final."
+            );
+        }
+
         Usuario usuario = buscarUsuarioAutenticado();
 
         LocalDateTime inicio = dataInicio != null
