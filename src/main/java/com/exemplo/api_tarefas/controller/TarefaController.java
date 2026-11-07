@@ -6,6 +6,10 @@ import com.exemplo.api_tarefas.dto.AtualizarTarefaRequest;
 import com.exemplo.api_tarefas.service.TarefaService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,8 +35,14 @@ public class TarefaController {
 
     @GetMapping
     @SecurityRequirement(name = "bearerAuth")
-    public List<TarefaResponse> listar() {
-        return tarefaService.listarTarefas();
+    public Page<TarefaResponse> listar(
+            @PageableDefault(
+                    size = 10,
+                    sort = "criadoEm",
+                    direction = Sort.Direction.DESC
+            ) Pageable pageable
+    ) {
+        return tarefaService.listarTarefas(pageable);
     }
 
     @GetMapping("/{id}")

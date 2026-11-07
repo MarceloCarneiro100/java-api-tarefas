@@ -12,6 +12,8 @@ import com.exemplo.api_tarefas.mapper.TarefaMapper;
 import com.exemplo.api_tarefas.repository.TarefaRepository;
 import com.exemplo.api_tarefas.repository.UsuarioRepository;
 import com.exemplo.api_tarefas.security.UsuarioAutenticado;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -50,13 +52,12 @@ public class TarefaService {
         return tarefaMapper.toResponse(tarefaSalva);
     }
 
-    public List<TarefaResponse> listarTarefas() {
+    public Page<TarefaResponse> listarTarefas(Pageable pageable) {
         Usuario usuario = buscarUsuarioAutenticado();
 
-        return tarefaRepository.findAllByUsuario_Id(usuario.getId())
-                .stream()
-                .map(tarefaMapper::toResponse)
-                .toList();
+        return tarefaRepository
+                .findAllByUsuario_Id(usuario.getId(), pageable)
+                .map(tarefaMapper::toResponse);
     }
 
     public TarefaResponse buscarTarefaPorId(Long id) {
