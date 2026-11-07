@@ -1,5 +1,6 @@
 package com.exemplo.api_tarefas.controller;
 
+import com.exemplo.api_tarefas.dto.AtualizarStatusTarefaRequest;
 import com.exemplo.api_tarefas.dto.CadastroTarefaRequest;
 import com.exemplo.api_tarefas.dto.TarefaResponse;
 import com.exemplo.api_tarefas.dto.AtualizarTarefaRequest;
@@ -84,5 +85,14 @@ public class TarefaController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void excluir(@PathVariable Long id) {
         tarefaService.excluirTarefa(id);
+    }
+
+    @PatchMapping("/{id}/status")
+    @SecurityRequirement(name = "bearerAuth")
+    public TarefaResponse atualizarStatus(
+            @PathVariable Long id,
+            @Valid @RequestBody AtualizarStatusTarefaRequest request
+    ) {
+        return tarefaService.atualizarStatus(id, request);
     }
 }

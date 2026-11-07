@@ -1,5 +1,6 @@
 package com.exemplo.api_tarefas.service;
 
+import com.exemplo.api_tarefas.dto.AtualizarStatusTarefaRequest;
 import com.exemplo.api_tarefas.dto.AtualizarTarefaRequest;
 import com.exemplo.api_tarefas.dto.CadastroTarefaRequest;
 import com.exemplo.api_tarefas.dto.TarefaResponse;
@@ -140,6 +141,23 @@ public class TarefaService {
                 .orElseThrow(() -> new TarefaNaoEncontradaException(id));
 
         tarefaRepository.delete(tarefa);
+    }
+
+    public TarefaResponse atualizarStatus(
+            Long id,
+            AtualizarStatusTarefaRequest request
+    ) {
+        Usuario usuario = buscarUsuarioAutenticado();
+
+        Tarefa tarefa = tarefaRepository
+                .findByIdAndUsuario_Id(id, usuario.getId())
+                .orElseThrow(() -> new TarefaNaoEncontradaException(id));
+
+        tarefa.setStatus(request.status());
+
+        Tarefa tarefaAtualizada = tarefaRepository.save(tarefa);
+
+        return tarefaMapper.toResponse(tarefaAtualizada);
     }
 
     private UsuarioAutenticado obterUsuarioAutenticado() {

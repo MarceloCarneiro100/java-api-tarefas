@@ -1,9 +1,11 @@
 package com.exemplo.api_tarefas.exception;
 
 import com.exemplo.api_tarefas.dto.ErroResponse;
+import org.apache.coyote.Response;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -167,6 +169,19 @@ public class GlobalExceptionHandler {
                 HttpStatus.BAD_REQUEST.value(),
                 "Intervalo de datas inválido",
                 List.of(exception.getMessage())
+        );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erroResponse);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErroResponse> tratarErroLeituraJson(
+            HttpMessageNotReadableException exception
+    ) {
+        ErroResponse erroResponse = new ErroResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                "Dados inválidos",
+                List.of("O corpo da requisição contém dados inválidos ou valores não permitidos.")
         );
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erroResponse);
