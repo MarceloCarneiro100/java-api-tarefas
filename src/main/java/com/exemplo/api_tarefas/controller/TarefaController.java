@@ -12,9 +12,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -40,13 +42,22 @@ public class TarefaController {
     public Page<TarefaResponse> listar(
             @RequestParam(required = false) Categoria categoria,
             @RequestParam(required = false) StatusTarefa status,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataInicio,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataFim,
             @PageableDefault(
                     size = 10,
                     sort = "criadoEm",
                     direction = Sort.Direction.DESC
             ) Pageable pageable
     ) {
-        return tarefaService.listarTarefas(categoria, status, pageable);
+        return tarefaService.listarTarefas(
+                categoria,
+                status,
+                dataInicio,
+                dataFim,
+                pageable);
     }
 
     @GetMapping("/{id}")

@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.util.List;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 public interface TarefaRepository extends JpaRepository<Tarefa, Long> {
@@ -21,11 +21,15 @@ public interface TarefaRepository extends JpaRepository<Tarefa, Long> {
             WHERE t.usuario.id = :usuarioId
             AND (:categoria is NULL OR t.categoria = :categoria)
             AND (:status IS NULL OR t.status = :status)
+            AND (:dataInicio IS NULL OR t.criadoEm >= :dataInicio)
+            AND (:dataFim IS NULL OR t.criadoEm < :dataFim)
             """)
     Page<Tarefa> buscarComFiltros(
             @Param("usuarioId") Long usuarioId,
             @Param("categoria") Categoria categoria,
             @Param("status") StatusTarefa status,
+            @Param("dataInicio") LocalDateTime dataInicio,
+            @Param("dataFim") LocalDateTime dataFim,
             Pageable pageable
     );
 }

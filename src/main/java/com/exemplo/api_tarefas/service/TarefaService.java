@@ -18,7 +18,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Service
 public class TarefaService {
@@ -56,15 +57,27 @@ public class TarefaService {
     public Page<TarefaResponse> listarTarefas(
             Categoria categoria,
             StatusTarefa status,
+            LocalDate dataInicio,
+            LocalDate dataFim,
             Pageable pageable
     ) {
         Usuario usuario = buscarUsuarioAutenticado();
+
+        LocalDateTime inicio = dataInicio != null
+                ? dataInicio.atStartOfDay()
+                : null;
+
+        LocalDateTime fim = dataFim != null
+                ? dataFim.plusDays(1).atStartOfDay()
+                : null;
 
         return tarefaRepository
                 .buscarComFiltros(
                         usuario.getId(),
                         categoria,
                         status,
+                        inicio,
+                        fim,
                         pageable
                 )
                 .map(tarefaMapper::toResponse);
