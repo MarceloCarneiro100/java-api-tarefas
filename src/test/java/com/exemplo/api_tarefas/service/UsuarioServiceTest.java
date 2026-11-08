@@ -1,5 +1,6 @@
 package com.exemplo.api_tarefas.service;
 
+import com.exemplo.api_tarefas.dto.UsuarioResponse;
 import com.exemplo.api_tarefas.entity.Perfil;
 import com.exemplo.api_tarefas.entity.Usuario;
 import com.exemplo.api_tarefas.exception.EmailJaCadastradoException;
@@ -15,6 +16,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.List;
 
 @ExtendWith(MockitoExtension.class)
 class UsuarioServiceTest {
@@ -68,5 +71,23 @@ class UsuarioServiceTest {
 
         verify(usuarioRepository).existsByEmail("teste@email.com");
         verify(passwordService, never()).codificarSenha("12345678");
+    }
+
+    @Test
+    void deveListarUsuariosComSucesso() {
+        Usuario usuario = new Usuario();
+        usuario.setEmail("teste@email.com");
+        usuario.setPerfil(Perfil.USER);
+
+        when(usuarioRepository.findAll())
+                .thenReturn(List.of(usuario));
+
+        List<UsuarioResponse> resultado = usuarioService.listarUsuarios();
+
+        assertEquals(1, resultado.size());
+        assertEquals("teste@email.com", resultado.get(0).email());
+        assertEquals(Perfil.USER, resultado.get(0).perfil());
+
+        verify(usuarioRepository).findAll();
     }
 }
