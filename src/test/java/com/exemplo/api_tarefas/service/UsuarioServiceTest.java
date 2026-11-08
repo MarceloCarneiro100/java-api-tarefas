@@ -4,6 +4,7 @@ import com.exemplo.api_tarefas.dto.UsuarioResponse;
 import com.exemplo.api_tarefas.entity.Perfil;
 import com.exemplo.api_tarefas.entity.Usuario;
 import com.exemplo.api_tarefas.exception.EmailJaCadastradoException;
+import com.exemplo.api_tarefas.exception.UsuarioNaoEncontradoException;
 import com.exemplo.api_tarefas.repository.UsuarioRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -110,5 +111,18 @@ class UsuarioServiceTest {
         assertEquals(Perfil.USER, resultado.perfil());
 
         verify(usuarioRepository).findById(1L);
+    }
+
+    @Test
+    void deveLancarExcecaoQuandoUsuarioNaoForEncontrado() {
+        when(usuarioRepository.findById(99L))
+                .thenReturn(Optional.empty());
+
+        assertThrows(
+                UsuarioNaoEncontradoException.class,
+                () -> usuarioService.buscarUsuarioPorId(99L)
+        );
+
+        verify(usuarioRepository).findById(99L);
     }
 }
