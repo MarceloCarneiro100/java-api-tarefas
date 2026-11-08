@@ -16,8 +16,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
+import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
 class UsuarioServiceTest {
@@ -89,5 +91,24 @@ class UsuarioServiceTest {
         assertEquals(Perfil.USER, resultado.get(0).perfil());
 
         verify(usuarioRepository).findAll();
+    }
+
+    @Test
+    void deveBuscarUsuarioPorIdComSucesso() {
+        Usuario usuario = new Usuario();
+        ReflectionTestUtils.setField(usuario, "id", 1L);
+        usuario.setEmail("teste@email.com");
+        usuario.setPerfil(Perfil.USER);
+
+        when(usuarioRepository.findById(1L))
+                .thenReturn(Optional.of(usuario));
+
+        UsuarioResponse resultado = usuarioService.buscarUsuarioPorId(1L);
+
+        assertEquals(1L, resultado.id());
+        assertEquals("teste@email.com", resultado.email());
+        assertEquals(Perfil.USER, resultado.perfil());
+
+        verify(usuarioRepository).findById(1L);
     }
 }
