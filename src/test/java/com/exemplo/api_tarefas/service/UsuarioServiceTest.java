@@ -210,4 +210,44 @@ class UsuarioServiceTest {
         verify(usuarioRepository, never())
                 .save(any(Usuario.class));
     }
+
+    @Test
+    void devePermitirAtualizacaoMantendoMesmoEmail() throws AccessDeniedException {
+        Usuario usuario = new Usuario();
+        usuario.setEmail("teste@email.com");
+        usuario.setSenha("senha-antiga");
+        usuario.setPerfil(Perfil.USER);
+
+        AtualizarUsuarioRequest request = new AtualizarUsuarioRequest(
+                "teste@email.com",
+                "12345678"
+        );
+
+        UsuarioAutenticado autenticado = new UsuarioAutenticado(
+                1L,
+                "teste@email.com",
+                Perfil.USER
+        );
+
+        when(usuarioRepository.findById(1L))
+                .thenReturn(Optional.of(usuario));
+
+        when(usuarioRepository.existsByEmail("teste@email.com"))
+                .thenReturn(true);
+
+        when(passwordService.codificarSenha("12345678"))
+                .thenReturn("nova-senha-codificada");
+
+        when(usuarioRepository.save(any(Usuario.class)))
+                .thenReturn(usuario);
+
+        UsuarioResponse resultado = usuarioService.atualizarUsuario(1L, request, autenticado);
+
+        assertEquals("teste@email.com", resultado.email());
+        assertEquals("nova-senha-codificada", usuario.getSenha());
+
+        verify(usuarioRepository).existsByEmail("teste@email.com");
+        verify(passwordService).codificarSenha("12345678");
+        verify(usuarioRepository).save(usuario);
+    }
 }
