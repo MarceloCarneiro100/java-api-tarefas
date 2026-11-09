@@ -343,4 +343,25 @@ class UsuarioServiceTest {
         verify(passwordService, never()).codificarSenha("12345678");
         verify(usuarioRepository, never()).save(any(Usuario.class));
     }
+
+    @Test
+    void deveExcluirUsuarioComSucesso() {
+        Usuario usuario = new Usuario();
+        usuario.setEmail("usuario@email.com");
+        usuario.setPerfil(Perfil.USER);
+
+        UsuarioAutenticado autenticado = new UsuarioAutenticado(
+                1L,
+                "admin@email.com",
+                Perfil.ADMIN
+        );
+
+        when(usuarioRepository.findById(2L))
+                .thenReturn(Optional.of(usuario));
+
+        usuarioService.excluirUsuario(2L, autenticado);
+
+        verify(usuarioRepository).findById(2L);
+        verify(usuarioRepository).delete(usuario);
+    }
 }
