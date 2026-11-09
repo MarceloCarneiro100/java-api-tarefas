@@ -172,4 +172,42 @@ class UsuarioServiceTest {
         verify(passwordService).codificarSenha("12345678");
         verify(usuarioRepository).save(usuario);
     }
+
+    @Test
+    void deveRejeitarAtualizacaoComEmailCadastrado() {
+        Usuario usuario = new Usuario();
+        usuario.setEmail("antigo@email.com");
+        usuario.setSenha("senha-antiga");
+        usuario.setPerfil(Perfil.USER);
+
+        AtualizarUsuarioRequest request = new AtualizarUsuarioRequest(
+                "outro@email.com",
+                "12345678"
+        );
+
+        UsuarioAutenticado autenticado = new UsuarioAutenticado(
+                1L,
+                "antigo@email.com",
+                Perfil.USER
+        );
+
+        when(usuarioRepository.findById(1L))
+                .thenReturn(Optional.of(usuario));
+
+        when(usuarioRepository.existsByEmail("outro@email.com"))
+                .thenReturn(true);
+
+        assertThrows(
+                EmailJaCadastradoException.class,
+                () -> usuarioService.atualizarUsuario(1L, request, autenticado)
+        );
+
+        verify(usuarioRepository).findById(1L);
+        verify(usuarioRepository).existsByEmail("outro@email.com");
+        verify(passwordService, never())
+                .codificarSenha("12345678");
+
+        verify(usuarioRepository, never())
+                .save(any(Usuario.class));
+    }
 }
