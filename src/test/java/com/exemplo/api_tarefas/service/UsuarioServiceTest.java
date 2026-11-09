@@ -250,4 +250,28 @@ class UsuarioServiceTest {
         verify(passwordService).codificarSenha("12345678");
         verify(usuarioRepository).save(usuario);
     }
+
+    @Test
+    void deveImpedirUsuarioComumDeAtualizarOutroUsuario() {
+        AtualizarUsuarioRequest request = new AtualizarUsuarioRequest(
+                "novo@email.com",
+                "12345678"
+        );
+
+        UsuarioAutenticado autenticado = new UsuarioAutenticado(
+             1L,
+             "usuario@email.com",
+             Perfil.USER
+        );
+
+        assertThrows(
+                AccessDeniedException.class,
+                () -> usuarioService.atualizarUsuario(2L, request, autenticado)
+        );
+
+        verify(usuarioRepository, never()).findById(2L);
+        verify(usuarioRepository, never()).existsByEmail("novo@email.com");
+        verify(passwordService, never()).codificarSenha("12345678");
+        verify(usuarioRepository, never()).save(any(Usuario.class));
+    }
 }
