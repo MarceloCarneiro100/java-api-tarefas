@@ -316,4 +316,31 @@ class UsuarioServiceTest {
         verify(passwordService).codificarSenha("12345678");
         verify(usuarioRepository).save(usuario);
     }
+
+    @Test
+    void deveLancarExcecaoAoAtualizarUsuarioInexistente() {
+        AtualizarUsuarioRequest request = new AtualizarUsuarioRequest(
+                "novo@email.com",
+                "12345678"
+        );
+
+        UsuarioAutenticado autenticado = new UsuarioAutenticado(
+                1L,
+                "admin@email.com",
+                Perfil.ADMIN
+        );
+
+        when(usuarioRepository.findById(99L))
+                .thenReturn(Optional.empty());
+
+        assertThrows(
+                UsuarioNaoEncontradoException.class,
+                () -> usuarioService.atualizarUsuario(99L, request, autenticado)
+        );
+
+        verify(usuarioRepository).findById(99L);
+        verify(usuarioRepository, never()).existsByEmail("novo@email.com");
+        verify(passwordService, never()).codificarSenha("12345678");
+        verify(usuarioRepository, never()).save(any(Usuario.class));
+    }
 }
