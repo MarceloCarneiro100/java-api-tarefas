@@ -510,4 +510,35 @@ class UsuarioServiceTest {
         verify(usuarioRepository, never()).findById(anyLong());
         verify(usuarioRepository, never()).save(any(Usuario.class));
     }
+
+    @Test
+    void devePermitirAdministradorAlterarPerfilDeOutroUsuario() throws AccessDeniedException {
+        Usuario usuario = new Usuario();
+        ReflectionTestUtils.setField(usuario, "id", 2L);
+        usuario.setEmail("usuario@email.com");
+        usuario.setPerfil(Perfil.USER);
+
+        UsuarioAutenticado autenticado = new UsuarioAutenticado(
+                1L,
+                "admin@email.com",
+                Perfil.ADMIN
+        );
+
+        AtualizarPerfilRequest request = new AtualizarPerfilRequest(Perfil.ADMIN);
+
+        when(usuarioRepository.findById(2L))
+                .thenReturn(Optional.of(usuario));
+
+        when(usuarioRepository.save(any(Usuario.class)))
+                .thenReturn(usuario);
+
+        UsuarioResponse resposta = usuarioService.atualizarPerfil(2L, request, autenticado);
+
+        assertEquals(2L, resposta.id());
+        assertEquals("usuario@email.com", resposta.email());
+        assertEquals(Perfil.ADMIN, resposta.perfil());
+        
+        verify(usuarioRepository).findById(2L);
+        verify(usuarioRepository).save(usuario);
+    }
 }
