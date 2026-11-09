@@ -537,8 +537,30 @@ class UsuarioServiceTest {
         assertEquals(2L, resposta.id());
         assertEquals("usuario@email.com", resposta.email());
         assertEquals(Perfil.ADMIN, resposta.perfil());
-        
+
         verify(usuarioRepository).findById(2L);
         verify(usuarioRepository).save(usuario);
+    }
+
+    @Test
+    void deveLancarExcecaoAoAtualizarPerfilDeUsuarioInexistente() {
+        UsuarioAutenticado autenticado = new UsuarioAutenticado(
+                1L,
+                "admin@email.com",
+                Perfil.ADMIN
+        );
+
+        AtualizarPerfilRequest request = new AtualizarPerfilRequest(Perfil.USER);
+
+        when(usuarioRepository.findById(99L))
+                .thenReturn(Optional.empty());
+
+        assertThrows(
+                UsuarioNaoEncontradoException.class,
+                () -> usuarioService.atualizarPerfil(99L, request, autenticado)
+        );
+
+        verify(usuarioRepository).findById(99L);
+        verify(usuarioRepository, never()).save(any(Usuario.class));
     }
 }
