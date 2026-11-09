@@ -1,5 +1,6 @@
 package com.exemplo.api_tarefas.service;
 
+import com.exemplo.api_tarefas.dto.AtualizarPerfilRequest;
 import com.exemplo.api_tarefas.dto.AtualizarUsuarioRequest;
 import com.exemplo.api_tarefas.dto.LoginRequest;
 import com.exemplo.api_tarefas.dto.UsuarioResponse;
@@ -489,5 +490,24 @@ class UsuarioServiceTest {
                 "senha-errada",
                 "senha-codificada"
         );
+    }
+
+    @Test
+    void deveImpedirUsuarioDeAlterarProprioPerfil() {
+        UsuarioAutenticado autenticado = new UsuarioAutenticado(
+                1L,
+                "usuario@email.com",
+                Perfil.ADMIN
+        );
+
+        AtualizarPerfilRequest request = new AtualizarPerfilRequest(Perfil.USER);
+
+        assertThrows(
+                AccessDeniedException.class,
+                () -> usuarioService.atualizarPerfil(1L, request, autenticado)
+        );
+
+        verify(usuarioRepository, never()).findById(anyLong());
+        verify(usuarioRepository, never()).save(any(Usuario.class));
     }
 }
