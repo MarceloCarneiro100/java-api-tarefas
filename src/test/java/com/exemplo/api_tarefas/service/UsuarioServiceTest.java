@@ -259,9 +259,9 @@ class UsuarioServiceTest {
         );
 
         UsuarioAutenticado autenticado = new UsuarioAutenticado(
-             1L,
-             "usuario@email.com",
-             Perfil.USER
+                1L,
+                "usuario@email.com",
+                Perfil.USER
         );
 
         assertThrows(
@@ -273,5 +273,47 @@ class UsuarioServiceTest {
         verify(usuarioRepository, never()).existsByEmail("novo@email.com");
         verify(passwordService, never()).codificarSenha("12345678");
         verify(usuarioRepository, never()).save(any(Usuario.class));
+    }
+
+    @Test
+    void devePermitirAdministradorAtualizarOutroUsuario() throws AccessDeniedException {
+        Usuario usuario = new Usuario();
+        usuario.setEmail("usuario@email.com");
+        usuario.setSenha("senha-antiga");
+        usuario.setPerfil(Perfil.USER);
+
+        AtualizarUsuarioRequest request = new AtualizarUsuarioRequest(
+                "novo@email.com",
+                "12345678"
+        );
+
+        UsuarioAutenticado autenticado = new UsuarioAutenticado(
+                1L,
+                "admin@email.com",
+                Perfil.ADMIN
+        );
+
+        when(usuarioRepository.findById(2L))
+                .thenReturn(Optional.of(usuario));
+
+        when(usuarioRepository.existsByEmail("novo@email.com"))
+                .thenReturn(false);
+
+        when(passwordService.codificarSenha("12345678"))
+                .thenReturn("nova-senha-codificada");
+
+        when(usuarioRepository.save(any(Usuario.class)))
+                .thenReturn(usuario);
+
+        UsuarioResponse resultado = usuarioService.atualizarUsuario(2L, request, autenticado);
+
+        assertEquals("novo@email.com", resultado.email());
+        assertEquals(Perfil.USER, resultado.perfil());
+        assertEquals("nova-senha-codificada", usuario.getSenha());
+
+        verify(usuarioRepository).findById(2L);
+        verify(usuarioRepository).existsByEmail("novo@email.com");
+        verify(passwordService).codificarSenha("12345678");
+        verify(usuarioRepository).save(usuario);
     }
 }
