@@ -1,6 +1,7 @@
 package com.exemplo.api_tarefas.service;
 
 import com.exemplo.api_tarefas.dto.AtualizarUsuarioRequest;
+import com.exemplo.api_tarefas.dto.LoginRequest;
 import com.exemplo.api_tarefas.dto.UsuarioResponse;
 import com.exemplo.api_tarefas.entity.Perfil;
 import com.exemplo.api_tarefas.entity.Usuario;
@@ -398,8 +399,43 @@ class UsuarioServiceTest {
                 UsuarioNaoEncontradoException.class,
                 () -> usuarioService.excluirUsuario(99L, autenticado)
         );
-        
+
         verify(usuarioRepository).findById(99L);
         verify(usuarioRepository, never()).delete(any(Usuario.class));
+    }
+
+    @Test
+    void deveAutenticarUsuarioComSucesso() {
+        Usuario usuario = new Usuario();
+        ReflectionTestUtils.setField(usuario, "id", 1L);
+        usuario.setEmail("usuario@email.com");
+        usuario.setSenha("senha-codificada");
+        usuario.setPerfil(Perfil.USER);
+
+        LoginRequest request = new LoginRequest(
+                "usuario@email.com",
+                "12345678"
+        );
+
+        when(usuarioRepository.findByEmail("usuario@email.com"))
+                .thenReturn(Optional.of(usuario));
+
+        when(passwordService.verificarSenha(
+                "12345678",
+                "senha-codificada"
+        ))
+                .thenReturn(true);
+
+        UsuarioResponse resposta = usuarioService.autenticar(request);
+
+        assertEquals(1L, resposta.id());
+        assertEquals("usuario@email.com", resposta.email());
+        assertEquals(Perfil.USER, resposta.perfil());
+
+        verify(usuarioRepository).findByEmail("usuario@email.com");
+        verify(passwordService).verificarSenha(
+                "12345678",
+                "senha-codificada"
+        );
     }
 }
