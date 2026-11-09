@@ -458,4 +458,36 @@ class UsuarioServiceTest {
         verify(usuarioRepository).findByEmail("inexistente@email.com");
         verify(passwordService, never()).verificarSenha(anyString(), anyString());
     }
+
+    @Test
+    void deveRejeitarAutenticacaoComSenhaIncorreta() {
+        Usuario usuario = new Usuario();
+        usuario.setEmail("usuario@email.com");
+        usuario.setSenha("senha-codificada");
+        usuario.setPerfil(Perfil.USER);
+
+        LoginRequest request = new LoginRequest(
+                "usuario@email.com",
+                "senha-errada"
+        );
+
+        when(usuarioRepository.findByEmail("usuario@email.com"))
+                .thenReturn(Optional.of(usuario));
+
+        when(passwordService
+                .verificarSenha("senha-errada",
+                        "senha-codificada"))
+                .thenReturn(false);
+
+        assertThrows(
+                CredenciaisInvalidasException.class,
+                () -> usuarioService.autenticar(request)
+        );
+
+        verify(usuarioRepository).findByEmail("usuario@email.com");
+        verify(passwordService).verificarSenha(
+                "senha-errada",
+                "senha-codificada"
+        );
+    }
 }
