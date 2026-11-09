@@ -6,6 +6,7 @@ import com.exemplo.api_tarefas.dto.UsuarioResponse;
 import com.exemplo.api_tarefas.entity.Perfil;
 import com.exemplo.api_tarefas.entity.Usuario;
 import com.exemplo.api_tarefas.exception.AutoExclusaoAdministradorException;
+import com.exemplo.api_tarefas.exception.CredenciaisInvalidasException;
 import com.exemplo.api_tarefas.exception.EmailJaCadastradoException;
 import com.exemplo.api_tarefas.exception.UsuarioNaoEncontradoException;
 import com.exemplo.api_tarefas.repository.UsuarioRepository;
@@ -437,5 +438,24 @@ class UsuarioServiceTest {
                 "12345678",
                 "senha-codificada"
         );
+    }
+
+    @Test
+    void deveRejeitarAutenticacaoComEmailInexistente() {
+        LoginRequest request = new LoginRequest(
+                "inexistente@email.com",
+                "12345678"
+        );
+
+        when(usuarioRepository.findByEmail("inexistente@email.com"))
+                .thenReturn(Optional.empty());
+
+        assertThrows(
+                CredenciaisInvalidasException.class,
+                () -> usuarioService.autenticar(request)
+        );
+
+        verify(usuarioRepository).findByEmail("inexistente@email.com");
+        verify(passwordService, never()).verificarSenha(anyString(), anyString());
     }
 }
