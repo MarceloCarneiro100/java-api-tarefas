@@ -4,6 +4,7 @@ import com.exemplo.api_tarefas.dto.AtualizarUsuarioRequest;
 import com.exemplo.api_tarefas.dto.UsuarioResponse;
 import com.exemplo.api_tarefas.entity.Perfil;
 import com.exemplo.api_tarefas.entity.Usuario;
+import com.exemplo.api_tarefas.exception.AutoExclusaoAdministradorException;
 import com.exemplo.api_tarefas.exception.EmailJaCadastradoException;
 import com.exemplo.api_tarefas.exception.UsuarioNaoEncontradoException;
 import com.exemplo.api_tarefas.repository.UsuarioRepository;
@@ -363,5 +364,22 @@ class UsuarioServiceTest {
 
         verify(usuarioRepository).findById(2L);
         verify(usuarioRepository).delete(usuario);
+    }
+
+    @Test
+    void deveImpedirAdministradorDeExcluirPropriaConta() {
+        UsuarioAutenticado autenticado = new UsuarioAutenticado(
+                1L,
+                "admin@email.com",
+                Perfil.ADMIN
+        );
+
+        assertThrows(
+                AutoExclusaoAdministradorException.class,
+                () -> usuarioService.excluirUsuario(1L, autenticado)
+        );
+
+        verify(usuarioRepository, never()).findById(1L);
+        verify(usuarioRepository, never()).delete(any(Usuario.class));
     }
 }
