@@ -382,4 +382,24 @@ class UsuarioServiceTest {
         verify(usuarioRepository, never()).findById(1L);
         verify(usuarioRepository, never()).delete(any(Usuario.class));
     }
+
+    @Test
+    void deveLancarExcecaoAoExcluirUsuarioInexistente() {
+        UsuarioAutenticado autenticado = new UsuarioAutenticado(
+                1L,
+                "admin@email.com",
+                Perfil.ADMIN
+        );
+
+        when(usuarioRepository.findById(99L))
+                .thenReturn(Optional.empty());
+
+        assertThrows(
+                UsuarioNaoEncontradoException.class,
+                () -> usuarioService.excluirUsuario(99L, autenticado)
+        );
+        
+        verify(usuarioRepository).findById(99L);
+        verify(usuarioRepository, never()).delete(any(Usuario.class));
+    }
 }
