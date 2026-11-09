@@ -1,11 +1,13 @@
 package com.exemplo.api_tarefas.service;
 
+import com.exemplo.api_tarefas.dto.AtualizarUsuarioRequest;
 import com.exemplo.api_tarefas.dto.UsuarioResponse;
 import com.exemplo.api_tarefas.entity.Perfil;
 import com.exemplo.api_tarefas.entity.Usuario;
 import com.exemplo.api_tarefas.exception.EmailJaCadastradoException;
 import com.exemplo.api_tarefas.exception.UsuarioNaoEncontradoException;
 import com.exemplo.api_tarefas.repository.UsuarioRepository;
+import com.exemplo.api_tarefas.security.UsuarioAutenticado;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -19,6 +21,7 @@ import static org.mockito.Mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 import java.util.Optional;
 
@@ -124,5 +127,49 @@ class UsuarioServiceTest {
         );
 
         verify(usuarioRepository).findById(99L);
+    }
+
+    @Test
+    void deveAtualizarUsuarioComSucesso() throws AccessDeniedException {
+        Usuario usuario = new Usuario();
+        usuario.setEmail("antigo@email.com");
+        usuario.setSenha("senha-antiga");
+        usuario.setPerfil(Perfil.USER);
+
+        AtualizarUsuarioRequest request = new AtualizarUsuarioRequest(
+                "novo@email.com",
+                "12345678"
+        );
+
+        UsuarioAutenticado autenticado = new UsuarioAutenticado(
+                1L,
+                "antigo@email.com",
+                Perfil.USER
+        );
+
+        when(usuarioRepository.findById(1L))
+                .thenReturn(Optional.of(usuario));
+
+        when(usuarioRepository.existsByEmail("novo@email.com"))
+                .thenReturn(false);
+
+        when(passwordService.codificarSenha("12345678"))
+                .thenReturn("nova-senha-codificada");
+
+        when(usuarioRepository.save(any(Usuario.class)))
+                .thenReturn(usuario);
+
+        UsuarioResponse resultado = usuarioService.atualizarUsuario(
+                1L, request, autenticado
+        );
+
+        assertEquals("novo@email.com", resultado.email());
+        assertEquals(Perfil.USER, resultado.perfil());
+        assertEquals("nova-senha-codificada", usuario.getSenha());
+
+        verify(usuarioRepository).findById(1L);
+        verify(usuarioRepository).existsByEmail("novo@email.com");
+        verify(passwordService).codificarSenha("12345678");
+        verify(usuarioRepository).save(usuario);
     }
 }
