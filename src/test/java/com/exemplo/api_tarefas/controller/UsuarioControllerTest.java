@@ -1,18 +1,19 @@
 package com.exemplo.api_tarefas.controller;
 
 import com.exemplo.api_tarefas.config.SecurityConfig;
+import com.exemplo.api_tarefas.dto.AtualizarUsuarioRequest;
 import com.exemplo.api_tarefas.dto.UsuarioResponse;
 import com.exemplo.api_tarefas.entity.Perfil;
 import com.exemplo.api_tarefas.entity.Usuario;
 import com.exemplo.api_tarefas.exception.UsuarioNaoEncontradoException;
+import com.exemplo.api_tarefas.security.UsuarioAutenticado;
 import com.exemplo.api_tarefas.service.JwtService;
 import com.exemplo.api_tarefas.service.MensagemService;
 import com.exemplo.api_tarefas.service.UsuarioService;
 import org.junit.jupiter.api.Test;
 
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
@@ -26,6 +27,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.nio.file.AccessDeniedException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -202,5 +204,51 @@ public class UsuarioControllerTest {
                 .andExpect(status().isNotFound());
 
         verify(usuarioService).buscarUsuarioPorId(999L);
+    }
+
+    @Test
+    void deveAtualizarUsuarioComSucesso() throws Exception {
+        UsuarioResponse usuarioAtualizado = new UsuarioResponse(
+                1L,
+                "novo@email.com",
+                Perfil.USER,
+                LocalDateTime.now(),
+                LocalDateTime.now()
+        );
+
+        when(usuarioService.atualizarUsuario(
+                eq(1L),
+                any(AtualizarUsuarioRequest.class),
+                any(UsuarioAutenticado.class)
+        )).thenReturn(usuarioAtualizado);
+
+        when(jwtService.extrairEmail("token-admin"))
+                .thenReturn("admin@email.com");
+
+        when(jwtService.extrairPerfil("token-admin"))
+                .thenReturn("ADMIN");
+
+        when(jwtService.extrairId("token-admin"))
+                .thenReturn(10L);
+
+        mockMvc.perform(put("/api/usuarios/1")
+                        .header("Authorization", "Bearer token-admin")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "email": "novo@email.com",
+                                    "senha": "12345678"
+                                }
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.email").value("novo@email.com"))
+                .andExpect(jsonPath("$.perfil").value("USER"));
+
+        verify(usuarioService).atualizarUsuario(
+                eq(1L),
+                any(AtualizarUsuarioRequest.class),
+                any(UsuarioAutenticado.class)
+        );
     }
 }
