@@ -6,7 +6,7 @@ import com.exemplo.api_tarefas.service.MensagemService;
 import com.exemplo.api_tarefas.service.UsuarioService;
 import org.junit.jupiter.api.Test;
 
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -19,7 +19,6 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 
 @WebMvcTest(UsuarioController.class)
 public class UsuarioControllerTest {
@@ -65,5 +64,22 @@ public class UsuarioControllerTest {
                         .value("usuario@email.com"));
 
         verify(usuarioService).salvarUsuario(any(Usuario.class));
+    }
+
+    @Test
+    void deveRejeitarCadastroComEmailInvalido() throws Exception {
+        mockMvc.perform(post("/api/usuarios")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "email": "email-invalido",
+                                    "senha": "12345678"
+                                }
+                                """))
+                .andExpect(status().isBadRequest());
+
+        verify(usuarioService, never())
+                .salvarUsuario(any(Usuario.class));
+
     }
 }
