@@ -82,4 +82,20 @@ public class UsuarioControllerTest {
                 .salvarUsuario(any(Usuario.class));
 
     }
+
+    @Test
+    void deveRejeitarCadastroComSenhaMuitoCurta() throws Exception {
+        mockMvc.perform(post("/api/usuarios")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                   "email": "usuario@email.com",
+                                   "senha": "123"
+                                }
+                                """))
+                .andExpect(status().isBadRequest());
+
+        verify(usuarioService, never())
+                .salvarUsuario(any(Usuario.class));
+    }
 }
