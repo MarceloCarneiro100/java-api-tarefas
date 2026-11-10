@@ -149,4 +149,36 @@ public class UsuarioControllerTest {
         verify(usuarioService).listarUsuarios();
     }
 
+    @Test
+    void deveBuscarUsuarioPorIdComSucesso() throws Exception {
+        UsuarioResponse usuario = new UsuarioResponse(
+                1L,
+                "usuario@email.com",
+                Perfil.USER,
+                LocalDateTime.now(),
+                LocalDateTime.now()
+        );
+
+        when(usuarioService.buscarUsuarioPorId(1L))
+                .thenReturn(usuario);
+
+        when(jwtService.extrairEmail("token-admin"))
+                .thenReturn("admin@email.com");
+
+        when(jwtService.extrairPerfil("token-admin"))
+                .thenReturn("ADMIN");
+
+        when(jwtService.extrairId("token-admin"))
+                .thenReturn(1L);
+
+        mockMvc.perform(get("/api/usuarios/1")
+                        .header("Authorization", "Bearer token-admin"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.email").value("usuario@email.com"))
+                .andExpect(jsonPath("$.perfil").value("USER"));
+
+
+        verify(usuarioService).buscarUsuarioPorId(1L);
+    }
 }
