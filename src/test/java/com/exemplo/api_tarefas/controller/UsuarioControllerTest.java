@@ -251,4 +251,50 @@ public class UsuarioControllerTest {
                 any(UsuarioAutenticado.class)
         );
     }
+
+    @Test
+    void devePermitirUsuarioAtualizarSeusPropriosDados() throws Exception {
+        UsuarioResponse usuarioAtualizado = new UsuarioResponse(
+                1L,
+                "novo@email.com",
+                Perfil.USER,
+                LocalDateTime.now(),
+                LocalDateTime.now()
+        );
+
+        when(usuarioService.atualizarUsuario(
+                eq(1L),
+                any(AtualizarUsuarioRequest.class),
+                any(UsuarioAutenticado.class)
+        )).thenReturn(usuarioAtualizado);
+
+        when(jwtService.extrairEmail("token-usuario"))
+                .thenReturn("usuario@email.com");
+
+        when(jwtService.extrairPerfil("token-usuario"))
+                .thenReturn("USER");
+
+        when(jwtService.extrairId("token-usuario"))
+                .thenReturn(1L);
+
+        mockMvc.perform(put("/api/usuarios/1")
+                        .header("Authorization", "Bearer token-usuario")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                   "email": "novo@email.com",
+                                   "senha": "12345678"
+                                }
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.email").value("novo@email.com"))
+                .andExpect(jsonPath("$.perfil").value("USER"));
+
+        verify(usuarioService).atualizarUsuario(
+                eq(1L),
+                any(AtualizarUsuarioRequest.class),
+                any(UsuarioAutenticado.class)
+        );
+    }
 }
