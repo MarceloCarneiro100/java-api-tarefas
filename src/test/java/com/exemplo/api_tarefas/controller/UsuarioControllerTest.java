@@ -1,5 +1,8 @@
 package com.exemplo.api_tarefas.controller;
 
+import com.exemplo.api_tarefas.config.SecurityConfig;
+import com.exemplo.api_tarefas.dto.UsuarioResponse;
+import com.exemplo.api_tarefas.entity.Perfil;
 import com.exemplo.api_tarefas.entity.Usuario;
 import com.exemplo.api_tarefas.service.JwtService;
 import com.exemplo.api_tarefas.service.MensagemService;
@@ -7,20 +10,29 @@ import com.exemplo.api_tarefas.service.UsuarioService;
 import org.junit.jupiter.api.Test;
 
 import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
+import org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 import static org.mockito.ArgumentMatchers.any;
 
 @WebMvcTest(UsuarioController.class)
+@ImportAutoConfiguration(SecurityAutoConfiguration.class)
+@Import(SecurityConfig.class)
 public class UsuarioControllerTest {
 
     @Autowired
@@ -98,4 +110,43 @@ public class UsuarioControllerTest {
         verify(usuarioService, never())
                 .salvarUsuario(any(Usuario.class));
     }
+
+    @Test
+    void deveExigirAutenticacaoParaListarUsuarios() throws Exception {
+        mockMvc.perform(get("/api/usuarios"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void deveListarUsuariosComSucesso() throws Exception {
+        UsuarioResponse usuario = new UsuarioResponse(
+                1L,
+                "usuario@email.com",
+                Perfil.USER,
+                LocalDateTime.now(),
+                LocalDateTime.now()
+        );
+
+        when(usuarioService.listarUsuarios())
+                .thenReturn(List.of(usuario));
+
+        when(jwtService.extrairEmail("token-admin"))
+                .thenReturn("admin@email.com");
+
+        when(jwtService.extrairPerfil("token-admin"))
+                .thenReturn("ADMIN");
+
+        when(jwtService.extrairId("token-admin"))
+                .thenReturn(1L);
+
+        mockMvc.perform(get("/api/usuarios")
+                        .header("Authorization", "Bearer token-admin"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].email").value("usuario@email.com"))
+                .andExpect(jsonPath("$[0].perfil").value("USER"));
+
+        verify(usuarioService).listarUsuarios();
+    }
+
 }
