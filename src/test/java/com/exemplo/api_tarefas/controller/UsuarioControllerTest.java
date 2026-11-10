@@ -4,6 +4,7 @@ import com.exemplo.api_tarefas.config.SecurityConfig;
 import com.exemplo.api_tarefas.dto.UsuarioResponse;
 import com.exemplo.api_tarefas.entity.Perfil;
 import com.exemplo.api_tarefas.entity.Usuario;
+import com.exemplo.api_tarefas.exception.UsuarioNaoEncontradoException;
 import com.exemplo.api_tarefas.service.JwtService;
 import com.exemplo.api_tarefas.service.MensagemService;
 import com.exemplo.api_tarefas.service.UsuarioService;
@@ -180,5 +181,26 @@ public class UsuarioControllerTest {
 
 
         verify(usuarioService).buscarUsuarioPorId(1L);
+    }
+
+    @Test
+    void deveRetornar400AoBuscarUsuarioInexistente() throws Exception {
+        when(usuarioService.buscarUsuarioPorId(999L))
+                .thenThrow(new UsuarioNaoEncontradoException(999L));
+
+        when(jwtService.extrairEmail("token-admin"))
+                .thenReturn("admin@email.com");
+
+        when(jwtService.extrairPerfil("token-admin"))
+                .thenReturn("ADMIN");
+
+        when(jwtService.extrairId("token-admin"))
+                .thenReturn(1L);
+
+        mockMvc.perform(get("/api/usuarios/999")
+                        .header("Authorization", "Bearer token-admin"))
+                .andExpect(status().isNotFound());
+
+        verify(usuarioService).buscarUsuarioPorId(999L);
     }
 }
